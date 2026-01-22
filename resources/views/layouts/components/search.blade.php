@@ -1,0 +1,15 @@
+<li class="nav-item dropdown no-caret me-3 d-lg-none">
+    <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="searchDropdown" href="#" role="button"
+        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i data-feather="search"></i></a>
+    <!-- Dropdown - Search-->
+    <div class="dropdown-menu dropdown-menu-end p-3 shadow animated--fade-in-up" aria-labelledby="searchDropdown">
+        <form class="form-inline me-auto w-100 ">
+            <div class="input-group input-group-joined input-group-solid">
+                <input class="form-control pe-0" id="global_m_search" type="search" placeholder="Search.." aria-label="Search" />
+                <div class="input-group-text"><i data-feather="search"></i></div>
+            </div>
+            <div id="search-m-results" class="search-results-container dropdown-menu dropdown-menu-center border-0 shadow animated--fade-in-up"></div>
+        </form>
+    </div>
+</li>
+

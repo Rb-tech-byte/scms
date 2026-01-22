@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class AttendanceController extends Controller
+{
+    public function index()
+    {
+        return view('attendance.index');
+    }
+
+    public function export()
+    {
+        // TODO: implement export
+        return view('attendance.index');
+    }
+}
