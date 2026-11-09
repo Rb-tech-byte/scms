@@ -1,10 +1,4 @@
 <!DOCTYPE html>
-<!--
-    Short Course Management System (SCMS)
-    Institute of Education and Management Technologies (IEMT)
-    The Open University of Tanzania
-    Author & Lead Developer: Renatus Bernardo
--->
 <html lang="en">
 
 <head>
@@ -14,7 +8,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; font-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net data:; img-src 'self' data: https:; connect-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net;">
     @csrf
     <meta name="description" content="Short Course Management System (SCMS) - Open University of Tanzania" />
-    <meta name="author" content="Renatus Bernardo" />
+    <meta name="author" content="" />
     <title>@yield('title', $title ?? 'Scms') </title>
 
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />

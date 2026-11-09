@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Crypt;
  * This file is automatically loaded via composer.json autoload.files.
  * It provides core utility functions for security encryption, phone formatting,
  * UI navigation rendering, image manipulation, and permission syncing.
+ *
+ * @author Renatus Bernardo <bernadorenatus32@gmail.com>
  */
 
 /**

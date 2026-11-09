@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *
  * Core student tuition billing and accounting ledger model.
  *
+ * @package App\Models
+ * @author Renatus Bernardo <bernadorenatus32@gmail.com>
+ *
  * BILLING LIFECYCLE & DEVELOPER GUIDE:
  * 1. Invoice Generation:
  *    - Automatically instantiated upon applicant enrollment confirmation in ApplicantController.

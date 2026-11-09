@@ -13,6 +13,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *
  * Represents candidate students registered into the Short Course Management System.
  *
+ * @package App\Models
+ * @author Renatus Bernardo <bernadorenatus32@gmail.com>
+ *
  * INTAKE LIFECYCLE & DEVELOPER GUIDE:
  * 1. Registration Flow:
  *    - Handled via `ApplicantController::store()`.

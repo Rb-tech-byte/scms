@@ -13,6 +13,9 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
  *
  * Core authentication, profile, and authorization entity.
  *
+ * @package App\Models
+ * @author Renatus Bernardo <bernadorenatus32@gmail.com>
+ *
  * DEVELOPER ARCHITECTURE GUIDE:
  * 1. Authentication & Security:
  *    - Uses standard Laravel guard authentication.

@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
  *
  * Provides multi-tenant data isolation and role-based query scoping across the application.
  *
+ * @package App\Traits
+ * @author Renatus Bernardo <bernadorenatus32@gmail.com>
+ *
  * ARCHITECTURAL OVERVIEW FOR FUTURE DEVELOPERS:
  * 1. Global Scope Application:
  *    When this trait is attached to an Eloquent model, it registers a global query scope named 'branch'.

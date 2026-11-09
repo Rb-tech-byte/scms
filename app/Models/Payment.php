@@ -12,6 +12,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  *
  * Handles tuition payments, installment settlements, and official receipt numbering.
  *
+ * @package App\Models
+ * @author Renatus Bernardo <bernadorenatus32@gmail.com>
+ *
  * FINANCIAL AUDIT & DEVELOPER GUIDE:
  * 1. Financial Immutability & Audit Trail:
  *    - Payments represent legally compliant financial records.

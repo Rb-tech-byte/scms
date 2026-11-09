@@ -1,15 +1,8 @@
 <!DOCTYPE html>
-<!--
-    Short Course Management System (SCMS)
-    Institute of Education and Management Technologies (IEMT)
-    The Open University of Tanzania
-    Author & Lead Developer: Renatus Bernardo
--->
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-    <meta name="author" content="Renatus Bernardo">
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Online Course Registration | Open University</title>
@@ -55,9 +48,6 @@
                             <span class="span-or">&nbsp;&nbsp;</span>
                         </div>
                         @stack('footer-links')
-                        <div class="text-center mt-3 pt-2">
-                            <small class="text-muted">Developed by <strong style="color: #013ba6;">Renatus Bernardo</strong></small>
-                        </div>
                     </div>
                 </div>
             </div>
