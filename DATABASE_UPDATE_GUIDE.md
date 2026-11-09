@@ -1,12 +1,12 @@
-# 🔧 Safe Database Update Guide - No Data Loss
+# Safe Database Update Guide - No Data Loss
 
-## ⚠️ IMPORTANT: Your Data is Safe!
+## ️ IMPORTANT: Your Data is Safe!
 
 You have **TWO OPTIONS** to update your database without losing any data:
 
 ---
 
-## 🎯 **OPTION 1: Using Laravel Migration (Recommended)**
+## **OPTION 1: Using Laravel Migration (Recommended)**
 
 This is the safest and easiest method.
 
@@ -18,13 +18,13 @@ This is the safest and easiest method.
    ```
 
 2. **That's it!** The migration will:
-   - ✅ Check if columns already exist (won't duplicate)
-   - ✅ Add `installment_number` column
-   - ✅ Add `payment_id` column
-   - ✅ Add foreign key constraint
-   - ✅ Add performance indexes
-   - ✅ Automatically number existing schedules sequentially
-   - ✅ **Preserve ALL existing data**
+   -  Check if columns already exist (won't duplicate)
+   -  Add `installment_number` column
+   -  Add `payment_id` column
+   -  Add foreign key constraint
+   -  Add performance indexes
+   -  Automatically number existing schedules sequentially
+   -  **Preserve ALL existing data**
 
 ### Migration File Location:
 ```
@@ -33,7 +33,7 @@ database/migrations/2026_01_23_000001_add_fields_to_payment_schedules_table.php
 
 ---
 
-## 🎯 **OPTION 2: Manual SQL Execution**
+## **OPTION 2: Manual SQL Execution**
 
 If you prefer to run SQL directly in phpMyAdmin or MySQL client.
 
@@ -54,16 +54,16 @@ If you prefer to run SQL directly in phpMyAdmin or MySQL client.
    - Click "Go"
 
 4. **The script will:**
-   - ✅ Check if columns exist before adding
-   - ✅ Add new columns safely
-   - ✅ Add foreign keys and indexes
-   - ✅ Update existing records with installment numbers
-   - ✅ Show verification queries
-   - ✅ **Preserve ALL existing data**
+   -  Check if columns exist before adding
+   -  Add new columns safely
+   -  Add foreign keys and indexes
+   -  Update existing records with installment numbers
+   -  Show verification queries
+   -  **Preserve ALL existing data**
 
 ---
 
-## 📋 **What Gets Added?**
+## **What Gets Added?**
 
 ### New Columns:
 1. **`installment_number`** (INT, NOT NULL, DEFAULT 1)
@@ -82,7 +82,7 @@ If you prefer to run SQL directly in phpMyAdmin or MySQL client.
 
 ---
 
-## ✅ **Verification**
+## **Verification**
 
 After running either option, verify the changes:
 
@@ -103,7 +103,7 @@ You should see:
 
 ---
 
-## 🔄 **Rollback (If Needed)**
+## **Rollback (If Needed)**
 
 If something goes wrong, you can rollback:
 
@@ -117,7 +117,7 @@ The SQL file includes a rollback script at the bottom (commented out).
 
 ---
 
-## 📊 **Before & After Comparison**
+## **Before & After Comparison**
 
 ### BEFORE:
 ```
@@ -137,22 +137,22 @@ The SQL file includes a rollback script at the bottom (commented out).
 | 3  | 101        | 1                  | 2026-02-15 | 300.00 | paid    | NULL       |
 ```
 
-**Notice:** All original data is preserved! ✅
+**Notice:** All original data is preserved! 
 
 ---
 
-## 🎓 **Recommended Approach**
+## **Recommended Approach**
 
 **Use Option 1 (Laravel Migration)** because:
-- ✅ Safer (built-in checks)
-- ✅ Easier (one command)
-- ✅ Trackable (migration history)
-- ✅ Reversible (easy rollback)
-- ✅ Tested (Laravel's migration system)
+-  Safer (built-in checks)
+-  Easier (one command)
+-  Trackable (migration history)
+-  Reversible (easy rollback)
+-  Tested (Laravel's migration system)
 
 ---
 
-## 🆘 **Troubleshooting**
+## **Troubleshooting**
 
 ### "Column already exists" error?
 **Solution:** The migration/SQL checks for this. If you get this error, the columns are already added. You're good to go!
@@ -165,7 +165,7 @@ The SQL file includes a rollback script at the bottom (commented out).
 
 ---
 
-## 📞 **Need Help?**
+## **Need Help?**
 
 If you encounter any issues:
 1. Check the error message
@@ -175,13 +175,13 @@ If you encounter any issues:
 
 ---
 
-## ✨ **Summary**
+## **Summary**
 
-- ✅ **No data will be lost**
-- ✅ **Existing records are preserved**
-- ✅ **New columns added safely**
-- ✅ **Automatic numbering applied**
-- ✅ **Fully reversible**
-- ✅ **Production-safe**
+-  **No data will be lost**
+-  **Existing records are preserved**
+-  **New columns added safely**
+-  **Automatic numbering applied**
+-  **Fully reversible**
+-  **Production-safe**
 
-**Choose your preferred option and proceed with confidence!** 🚀
+**Choose your preferred option and proceed with confidence!** 

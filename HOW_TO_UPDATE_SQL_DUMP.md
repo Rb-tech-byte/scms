@@ -1,6 +1,6 @@
-# 📝 How to Add Updates to Your scms.sql File
+# How to Add Updates to Your scms.sql File
 
-## ✅ **Simple Steps**
+## **Simple Steps**
 
 ### **Option 1: Add to Existing SQL Dump (Recommended)**
 
@@ -44,7 +44,7 @@ If you don't want to modify scms.sql:
 
 ---
 
-## 📋 **What Gets Added**
+## **What Gets Added**
 
 When you import, these fields will be added to your tables:
 
@@ -81,17 +81,17 @@ When you import, these fields will be added to your tables:
 
 ---
 
-## ✅ **Safety Features**
+## **Safety Features**
 
-- ✅ Uses `ADD COLUMN IF NOT EXISTS` - Won't duplicate columns
-- ✅ Preserves all existing data
-- ✅ Auto-populates default values
-- ✅ Adds performance indexes
-- ✅ Includes verification queries
+-  Uses `ADD COLUMN IF NOT EXISTS` - Won't duplicate columns
+-  Preserves all existing data
+-  Auto-populates default values
+-  Adds performance indexes
+-  Includes verification queries
 
 ---
 
-## 🎯 **Quick Method**
+## **Quick Method**
 
 **Just want to update quickly?**
 
@@ -105,7 +105,7 @@ When you import, these fields will be added to your tables:
 
 ---
 
-## 🔍 **Verification**
+## **Verification**
 
 After import, you'll see messages like:
 ```
@@ -117,20 +117,20 @@ All tables updated successfully!
 
 ---
 
-## 📁 **File Locations**
+## **File Locations**
 
 ```
 c:\wamp64\www\scms\
 ├── scms.sql                                    ← Your main database dump
 └── database\sql\
-    ├── add_to_scms_dump.sql                   ← Add this to scms.sql ⭐
+    ├── add_to_scms_dump.sql                   ← Add this to scms.sql 
     ├── update_payment_schedules_table.sql     ← Alternative method
     └── update_reporting_tables.sql            ← Alternative method
 ```
 
 ---
 
-## 💡 **Pro Tip**
+## **Pro Tip**
 
 **For a complete fresh import:**
 
@@ -141,16 +141,16 @@ c:\wamp64\www\scms\
 
 ---
 
-## ⚠️ **Important Notes**
+## ️ **Important Notes**
 
-- ✅ **Safe to run multiple times** - Won't duplicate columns
-- ✅ **No data loss** - All existing data preserved
-- ✅ **Auto-population** - New fields get default values
-- ✅ **Reversible** - Can be rolled back if needed
+-  **Safe to run multiple times** - Won't duplicate columns
+-  **No data loss** - All existing data preserved
+-  **Auto-population** - New fields get default values
+-  **Reversible** - Can be rolled back if needed
 
 ---
 
-## 🆘 **Troubleshooting**
+## **Troubleshooting**
 
 ### "Column already exists" error?
 **Solution:** This is normal! The script checks before adding. Your database is already updated.
@@ -167,7 +167,7 @@ SHOW COLUMNS FROM invoices LIKE 'total_amount';
 
 ---
 
-## ✨ **You're Done!**
+## **You're Done!**
 
 After importing, your database will have all the new reporting fields ready to use!
 

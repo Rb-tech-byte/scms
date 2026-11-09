@@ -1,6 +1,6 @@
-# 🚀 Quick Setup - Branch Access Control
+# Quick Setup - Branch Access Control
 
-## ✅ **Step 1: Register Middleware**
+## **Step 1: Register Middleware**
 
 **File:** `app/Http/Kernel.php`
 
@@ -19,7 +19,7 @@ protected $routeMiddleware = [
 
 ---
 
-## ✅ **Step 2: Update Routes**
+## **Step 2: Update Routes**
 
 **File:** `routes/web.php`
 
@@ -43,11 +43,11 @@ Route::middleware(['auth', 'branch.access'])->group(function () {
 
 ---
 
-## ✅ **Step 3: Add Trait to Models**
+## **Step 3: Add Trait to Models**
 
 Add `BranchScoped` trait to models with `branch_id`:
 
-### Applicant Model (Already Done ✅)
+### Applicant Model (Already Done )
 ```php
 use App\Traits\BranchScoped;
 
@@ -85,7 +85,7 @@ class Tutor extends Model
 
 ---
 
-## ✅ **Step 4: Update User Model**
+## **Step 4: Update User Model**
 
 **File:** `app/Models/User.php`
 
@@ -123,7 +123,7 @@ public function getBranchIdAttribute()
 
 ---
 
-## ✅ **Step 5: Update Controllers (Example)**
+## **Step 5: Update Controllers (Example)**
 
 **File:** `app/Http/Controllers/ApplicantController.php`
 
@@ -240,7 +240,7 @@ public function destroy(Applicant $applicant)
 
 ---
 
-## ✅ **Step 6: Update Views (Example)**
+## **Step 6: Update Views (Example)**
 
 **File:** `resources/views/applicants/index.blade.php`
 
@@ -298,7 +298,7 @@ public function destroy(Applicant $applicant)
 
 ---
 
-## ✅ **Step 7: Test the System**
+## **Step 7: Test the System**
 
 ### Test as System Admin:
 1. Login as system admin
@@ -326,7 +326,7 @@ public function destroy(Applicant $applicant)
 
 ---
 
-## 🔧 **Quick Commands**
+## **Quick Commands**
 
 ```bash
 # Clear cache after changes
@@ -341,7 +341,7 @@ php artisan serve
 
 ---
 
-## 📝 **Checklist**
+## **Checklist**
 
 - [ ] Middleware registered in `Kernel.php`
 - [ ] Middleware applied to routes in `web.php`
@@ -356,7 +356,7 @@ php artisan serve
 
 ---
 
-## ⚡ **Common Issues & Solutions**
+## **Common Issues & Solutions**
 
 ### Issue: "Class 'App\Traits\BranchScoped' not found"
 **Solution:** Make sure the trait file exists at `app/Traits/BranchScoped.php`
@@ -372,16 +372,16 @@ php artisan serve
 
 ---
 
-## 🎯 **Files Created**
+## **Files Created**
 
-1. ✅ `app/Http/Middleware/CheckBranchAccess.php`
-2. ✅ `app/Traits/BranchScoped.php`
-3. ✅ `app/Services/PermissionService.php`
-4. ✅ `BRANCH_ACCESS_CONTROL_GUIDE.md`
-5. ✅ `QUICK_SETUP.md` (this file)
+1.  `app/Http/Middleware/CheckBranchAccess.php`
+2.  `app/Traits/BranchScoped.php`
+3.  `app/Services/PermissionService.php`
+4.  `BRANCH_ACCESS_CONTROL_GUIDE.md`
+5.  `QUICK_SETUP.md` (this file)
 
 ---
 
-**You're ready to implement branch-based access control!** 🚀
+**You're ready to implement branch-based access control!** 
 
 Follow the steps above in order, test thoroughly, and your system will be secured with proper branch isolation.

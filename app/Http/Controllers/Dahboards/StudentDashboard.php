@@ -26,6 +26,14 @@ class StudentDashboard extends Controller
     public function index() {
         $user = auth()->user();
         $applicant = Applicant::where('user_id', $user->id)->select('id', 'full_name', 'branch_id', 'user_id')->first();
+        if (!$applicant) {
+            $this->data['sessions'] = collect();
+            $this->data['teached_sessions'] = collect();
+            $this->data['new_sessions'] = collect();
+            $this->data['messsages'] = Message::where('receiver_id', $user->id)->where('opened', 0)->get();
+            return view('dashboards.student', $this->data);
+        }
+
         $enrollments = Enrollment::where('applicant_id', $applicant->id)->get();
 
         $course_ids = [];

@@ -5,7 +5,7 @@ The Payment Schedules system allows you to create and manage installment payment
 
 ## Features
 
-### ✨ Core Features
+### Core Features
 - **Flexible Payment Templates**: Weekly, Bi-weekly, Monthly, and Quarterly installment plans
 - **Automated Status Management**: Automatic status updates based on due dates
 - **Payment Tracking**: Link payments to specific schedule installments
@@ -13,7 +13,7 @@ The Payment Schedules system allows you to create and manage installment payment
 - **Statistics Dashboard**: Comprehensive overview of schedule performance
 - **Bulk Operations**: Send reminders to multiple schedules at once
 
-### 📊 Status Types
+### Status Types
 - **Pending**: Schedule created, payment not yet due
 - **Sent**: Reminder has been sent to the applicant
 - **Paid**: Payment received and recorded

@@ -81,15 +81,14 @@ class ApplicantController extends Controller
             'name_of_sponsor' => ['nullable', 'max:255', 'string'],
             'education_level' => ['required', 'max:255', 'string'],
             'is_staff_student' => ['nullable', 'in:0,1'],
-            'parent_staff_id' => [$request->input('is_staff_student') == '1' ? 'required' : 'nullable', 'mimes:pdf,jpeg,png,jpg', 'max:2048'],
+            'parent_staff_id' => [$request->input('is_staff_student') == '1' ? 'required' : 'nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
+            'discount_attachment' => [$request->input('apply_discount') == '1' ? 'required' : 'nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
 
             'amount' => ['required', 'numeric'],
             'installment_type' => ['required', 'in:quarter,half,full'],
             'date' => ['required', 'date'],
-            'receipt' => [$check_upload_receipt ? 'required' : 'nullable', 'mimes:pdf,jpeg,png,jpg', 'max:2048'],
+            'receipt' => [$check_upload_receipt ? 'required' : 'nullable', 'file', 'mimes:pdf,jpeg,png,jpg', 'max:4096'],
             'receipt_number' => ['required','string','max:255'],
-
-
         ]);
 
 
@@ -193,11 +192,17 @@ class ApplicantController extends Controller
             // handle parent staff ID upload and attach to applicant
             if ($request->input('is_staff_student') == '1' && $request->hasFile('parent_staff_id')) {
                 $parentIdFile = $request->file('parent_staff_id');
-                $extension = $parentIdFile->getClientOriginalExtension();
-                $parentIdName = str_replace([" ", "-", ".", ",", "'"], '_', strtolower($user->name)) . '_' . $applicant->id . '_' . time() . '_parent_staff_id.' . $extension;
-                $targetDir = public_path('storage/parent_staff_ids');
+                $allowedExtensions = ['pdf', 'jpeg', 'png', 'jpg'];
+                $extension = strtolower($parentIdFile->guessExtension() ?: $parentIdFile->getClientOriginalExtension());
+                if (!in_array($extension, $allowedExtensions, true)) {
+                    throw new \InvalidArgumentException('Invalid file type for Parent Staff ID.');
+                }
+                $safeExt = $extension === 'jpeg' ? 'jpg' : $extension;
+                $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($user->name));
+                $parentIdName = $cleanName . '_' . $applicant->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_parent_staff_id.' . $safeExt;
+                $targetDir = storage_path('app/public/parent_staff_ids');
                 if (!file_exists($targetDir)) {
-                    @mkdir($targetDir, 0775, true);
+                    @mkdir($targetDir, 0755, true);
                 }
                 $parentIdFile->move($targetDir, $parentIdName);
                 $applicant->parent_staff_id = $parentIdName;
@@ -240,9 +245,19 @@ class ApplicantController extends Controller
                 ];
                 if ($request->hasFile('discount_attachment')) {
                     $discount_attachment = $request->file('discount_attachment');
-                    $extension = $discount_attachment->extension();
-                    $discount_attachmentName = str_replace([" ", "-", ".", ",", "'"], '_', strtolower($user->name)) . '_' . $applicant->id . '_' . time() . '_discount_attachment.' . $extension;
-                    $discount_attachment->move(public_path('storage/discount_attachments'), $discount_attachmentName);
+                    $allowedExtensions = ['pdf', 'jpeg', 'png', 'jpg'];
+                    $extension = strtolower($discount_attachment->guessExtension() ?: $discount_attachment->getClientOriginalExtension());
+                    if (!in_array($extension, $allowedExtensions, true)) {
+                        throw new \InvalidArgumentException('Invalid file type for Discount Attachment.');
+                    }
+                    $safeExt = $extension === 'jpeg' ? 'jpg' : $extension;
+                    $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($user->name));
+                    $discount_attachmentName = $cleanName . '_' . $applicant->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_discount_attachment.' . $safeExt;
+                    $targetDir = storage_path('app/public/discount_attachments');
+                    if (!file_exists($targetDir)) {
+                        @mkdir($targetDir, 0755, true);
+                    }
+                    $discount_attachment->move($targetDir, $discount_attachmentName);
                     $invoiceData['discount_file'] = $discount_attachmentName;
                 }
             }
@@ -250,9 +265,19 @@ class ApplicantController extends Controller
 
             if ($request->hasFile('receipt')) {
                 $receipt = $request->file('receipt');
-                $extension = $receipt->getClientOriginalExtension();
-                $receiptName = str_replace([" ", "-", ".", ",", "'"], '_', strtolower($user->name)) . '_' . $applicant->id . '_' . time() . '_receipt_reference.' . $extension;
-                $receipt->move(public_path('storage/receipts'), $receiptName);
+                $allowedExtensions = ['pdf', 'jpeg', 'png', 'jpg'];
+                $extension = strtolower($receipt->guessExtension() ?: $receipt->getClientOriginalExtension());
+                if (!in_array($extension, $allowedExtensions, true)) {
+                    throw new \InvalidArgumentException('Invalid file type for Receipt.');
+                }
+                $safeExt = $extension === 'jpeg' ? 'jpg' : $extension;
+                $cleanName = preg_replace('/[^a-zA-Z0-9_-]/', '_', strtolower($user->name));
+                $receiptName = $cleanName . '_' . $applicant->id . '_' . time() . '_' . \Illuminate\Support\Str::random(8) . '_receipt_reference.' . $safeExt;
+                $targetDir = storage_path('app/public/receipts');
+                if (!file_exists($targetDir)) {
+                    @mkdir($targetDir, 0755, true);
+                }
+                $receipt->move($targetDir, $receiptName);
                 $validated['receipt'] = $receiptName;
             }
             $valid_amount = $course->fee;
@@ -414,6 +439,7 @@ class ApplicantController extends Controller
             'phone_2' => ['nullable', 'max:255', 'string'],
             'name_of_sponsor' => ['nullable', 'max:255', 'string'],
             'education_level' => ['required', 'max:255', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ]);
 
         $applicant->update($validated);
@@ -428,24 +454,28 @@ class ApplicantController extends Controller
             $applicant->user->syncRoles(Role::findByName('student'));
         }
 
-
-
         if ($request->hasFile('image')) {
             $image = $request->file('image');
-            $extension = $image->getClientOriginalExtension();
-            $filename = time() . '.' . $extension;
+            $allowedExtensions = ['jpeg', 'png', 'jpg'];
+            $extension = strtolower($image->guessExtension() ?: 'jpg');
+            if (!in_array($extension, $allowedExtensions, true)) {
+                return back()->with('error', 'Invalid image format. Allowed: JPG, PNG.');
+            }
+            $safeExt = $extension === 'jpeg' ? 'jpg' : $extension;
+            $filename = time() . '_' . \Illuminate\Support\Str::random(10) . '.' . $safeExt;
             $image_resize = Image::make($image->getRealPath());
             $image_resize->resize(null, 200, function ($constraint) {
                 $constraint->aspectRatio();
             });
-            $image_resize->encode($extension, 90);
-            if (!file_exists(storage_path('app/public/profiles'))) {
-                mkdir(storage_path('app/public/profiles'), 777, true);
+            $image_resize->encode($safeExt, 90);
+            $targetDir = storage_path('app/public/profiles');
+            if (!file_exists($targetDir)) {
+                @mkdir($targetDir, 0755, true);
             }
-            if ($applicant->user->image) {
+            if ($applicant->user && $applicant->user->image) {
                 Storage::delete('public/profiles/' . $applicant->user->image);
             }
-            $image_resize->save(storage_path('app/public/profiles/' . $filename));
+            $image_resize->save($targetDir . '/' . $filename);
 
             $applicant->user->image = $filename;
             $applicant->user->save();

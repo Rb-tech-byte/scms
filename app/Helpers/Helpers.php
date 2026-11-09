@@ -158,7 +158,7 @@ if (!function_exists('getEducationLevelClass')) {
             '5' => 'university',
             '6' => 'other',
         ];
-        return strtoupper($educationLevels[$levelKey]) ?? '';
+        return isset($educationLevels[$levelKey]) ? strtoupper($educationLevels[$levelKey]) : (string)$levelKey;
     }
 }
 

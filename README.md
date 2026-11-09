@@ -1,54 +1,58 @@
 # Short Course Management System (SCMS)
 
-Online Course Registration & Management System for the **Institute of Education and Management Technologies (IEMT) — Open University of Tanzania**.
+Online Course Registration and Management System for the Institute of Education and Management Technologies (IEMT) at the Open University of Tanzania.
 
 ---
 
-## 🚀 Overview
+## Overview
 
-The **Short Course Management System (SCMS)** is an enterprise academic administration portal built on Laravel. It streamlines applicant self-registration, course management, multi-branch operations, multi-installment tuition payment schedules, financial invoice tracking, attendance tracking, and completion certification.
+The Short Course Management System (SCMS) is an academic administration portal developed with the Laravel framework. The application coordinates applicant self-registration, multi-venue course scheduling, branch-level operations, structured tuition billing, multi-installment payment schedules, real-time invoice reconciliation, attendance records, and verifiable completion certification.
 
 ---
 
-## 🔑 Your Compliant Credentials
+## System Test Credentials
 
-Use these test accounts to verify user acceptance across roles:
+For user acceptance testing (UAT) and administrative verification, use the following provisioned accounts:
+
+### Your Compliant Credentials
 
 | Account | Email | Compliant Password | Role |
 | :--- | :--- | :--- | :--- |
-| **System Admin** | `admin@scms.out.ac.tz` | `Scms@Admin2026!#` | System Admin |
-| **Staff / Tutor** | `info@wolinet.com` | `Scms@Admin2026!#` | Staff |
-| **Student** | `bernadorenatus32@gmail.com` | `Scms@Admin2026!#` | Student |
+| System Admin | admin@scms.out.ac.tz | Scms@Admin2026!# | System Admin |
+| Staff / Tutor | info@wolinet.com | Scms@Admin2026!# | Staff |
+| Student | bernadorenatus32@gmail.com | Scms@Admin2026!# | Student |
 
-> **Note:** The application enforces a strict security policy requiring at least 8 characters, mixed case, numbers, special characters, and non-compromised passwords. The test credentials above are pre-configured to comply with this policy.
-
----
-
-## 📋 Key Modules & Features
-
-- **Applicant Registration**: Online student enrollment portal with course selection and branch assignment.
-- **Course & Venue Management**: Multi-venue scheduling, course durations, pricing tiers, and tutor assignments.
-- **Billing & Payment Schedules**: 
-  - Dynamic invoice generation with automated discount calculations.
-  - Multi-installment payment schedule tracking and receipt generation.
-- **Role-Based Access Control (RBAC)**: Fine-grained permissions powered by DaVinci RBAC (System Admin, Branch Admin, Tutor, Student).
-- **Attendance & Certifications**: Attendance verification and verifiable completion certificate generation.
-- **Reporting & Business Analytics**: Real-time revenue reports, branch-level metrics, and tutor workload analytics.
+> **Security Policy Compliance:** Passwords conform to government institutional security standards requiring at least 8 characters, mixed-case lettering, numbers, symbols, and non-compromised credential verification.
 
 ---
 
-## 🛠️ System Requirements
+## Core Modules and Capabilities
 
-- **PHP**: `>= 8.2` (PHP 8.3 recommended)
+- **Applicant Registration and Enrollment:** Online registration portal supporting course selection, venue assignment, student identification, and staff-student verification.
+- **Course and Venue Administration:** Scheduling across multiple study centres, pricing structures, intake durations, and tutor assignments.
+- **Tuition Billing and Payment Schedules:**
+  - Automated invoice generation with discount eligibility verification.
+  - Multi-installment payment schedule tracking, receipt uploads, and balance recalculation.
+- **Role-Based Access Control (RBAC):** Fine-grained permission model regulating access across System Administrators, Branch Managers, Tutors, and Students.
+- **Attendance Verification and Certification:** Student participation logging and verifiable completion certificate generation.
+- **Administrative Reporting:** Real-time revenue reporting, enrollment distribution, and instructor workload analytics.
+
+---
+
+## System Requirements
+
+- **PHP:** 8.3, 8.4, or 8.5
   - Required Extensions: `bcmath`, `ctype`, `curl`, `dom`, `fileinfo`, `gd`, `intl`, `json`, `mbstring`, `openssl`, `pcre`, `pdo_mysql`, `tokenizer`, `xml`, `zip`
-- **Web Server**: Apache / Nginx (MAMP, XAMPP, or standalone)
-- **Database**: MySQL `>= 5.7` or MariaDB `>= 10.3`
-- **Dependency Manager**: Composer `>= 2.0`
-- **Node.js**: `>= 18.x` & npm
+- **Web Server:** Apache (with `mod_rewrite` enabled) or Nginx
+- **Database:** MySQL 5.7+ or MySQL 8.0+ / MariaDB 10.3+
+- **Dependency Managers:**
+  - Composer 2.2+
+  - Node.js 18.x+ and npm
+- **Framework:** Laravel 13
 
 ---
 
-## 💻 Local Installation & Setup (MAMP / Standard)
+## Installation and Setup Guide
 
 ### 1. Clone the Repository
 ```bash
@@ -56,12 +60,13 @@ git clone https://github.com/Rb-tech-byte/scms.git
 cd scms
 ```
 
-### 2. Configure Environment
-Copy `.env.example` or create `.env`:
+### 2. Configure Environment Parameters
+Create or update the `.env` configuration file:
 ```bash
 cp .env.example .env
 ```
-Update your database configuration in `.env`:
+
+Ensure the database parameters align with your local server environment (e.g., standard MAMP configuration):
 ```env
 APP_NAME=SCMS
 APP_ENV=local
@@ -78,55 +83,60 @@ DB_PASSWORD=root
 DB_SOCKET=/Applications/MAMP/tmp/mysql/mysql.sock
 ```
 
-### 3. Install PHP Dependencies
+### 3. Install PHP Dependencies and Generate Application Key
 ```bash
 composer install
 php artisan key:generate
 ```
 
-### 4. Database Setup & Migrations
-Create the database in MySQL and run migrations:
+### 4. Database Setup and Migration Execution
+Verify that the target database exists in MySQL and apply all database migrations:
 ```bash
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS scms CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 php artisan migrate --force
 ```
-*(Optional: Import base dataset using `mysql -u root -p scms < scms.sql` if starting from the seeded snapshot).*
 
-### 5. Build Assets & Link Storage
+### 5. Compile Front-End Assets and Create Storage Symlink
 ```bash
 npm install
 npm run build
 php artisan storage:link
 ```
 
-### 6. Run the Application
-When using MAMP, access:
-- **Local Application URL**: `http://localhost:8888/scms/public/login` (or `http://localhost:8888/scms`)
-
-Alternatively, start the Laravel built-in server:
-```bash
-php artisan serve
-```
+### 6. Launch Application
+- **MAMP Environment:** Open `http://localhost:8888/scms/public/` in your browser.
+- **Built-in CLI Server:** Alternatively, start the local development server:
+  ```bash
+  php artisan serve
+  ```
 
 ---
 
-## 🧪 User Acceptance Testing (UAT) Guide
+## Security and System Hardening
 
-1. **System Admin Testing**:
-   - Log in with `admin@scms.out.ac.tz` / `Scms@Admin2026!#`.
-   - Access the Main Dashboard at `/dashboard`.
-   - Review `/applicants`, `/courses`, `/branches`, `/invoices`, and `/payments`.
-   - Check Branch Analytics at `/analytics/branches`.
-
-2. **Tutor / Staff Testing**:
-   - Log in with `info@wolinet.com` / `Scms@Admin2026!#`.
-   - Review assigned course modules, student attendance, and course rosters.
-
-3. **Student Testing**:
-   - Log in with `bernadorenatus32@gmail.com` / `Scms@Admin2026!#`.
-   - View enrolled courses, invoice balances, payment receipts, and certificate status.
+1. **Upload Execution Prevention (php2shell Mitigation):**
+   - Uploaded files are restricted to strict MIME types (`application/pdf`, `image/jpeg`, `image/png`).
+   - File extensions are determined by MIME inspection rather than client-supplied strings.
+   - Storage directories enforce execution blocks denying direct execution of script files (`.php`, `.phtml`, `.phar`, `.sh`).
+2. **Password Complexity:** User accounts enforce comprehensive entropy rules with mandatory resets for non-compliant legacy credentials.
+3. **Data Protection:** Database operations involving payments, billing, and enrollment transitions are wrapped in atomic transactions.
 
 ---
 
-## 📄 License
-Open-sourced software developed for Open University of Tanzania.
+## User Acceptance Testing (UAT) Guide
+
+1. **System Admin Portal:**
+   - Sign in using `admin@scms.out.ac.tz` and `Scms@Admin2026!#`.
+   - Access the administrative dashboard at `/dashboard`.
+   - Inspect applicant records, course assignments, invoices, and analytics at `/analytics/branches`.
+2. **Staff and Tutor Portal:**
+   - Sign in using `info@wolinet.com` and `Scms@Admin2026!#`.
+   - Verify assigned course rosters, student lists, and session logs.
+3. **Student Portal:**
+   - Sign in using `bernadorenatus32@gmail.com` and `Scms@Admin2026!#`.
+   - Check registered courses, outstanding balances, receipts, and certificate status.
+
+---
+
+## License
+
+Institutional software property developed for the Institute of Education and Management Technologies (IEMT) at the Open University of Tanzania.

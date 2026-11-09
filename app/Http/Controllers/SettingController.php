@@ -176,16 +176,22 @@ class SettingController extends Controller
 
         if ($request->hasFile('system_logo')) {
             $image = $request->file('system_logo');
-            $extension = $image->extension();
-            $filename = time() . '.' . $extension;
+            $allowedExtensions = ['jpeg', 'png', 'jpg', 'webp'];
+            $extension = strtolower($image->guessExtension() ?: $image->extension());
+            if (!in_array($extension, $allowedExtensions, true)) {
+                return back()->with('error', 'Invalid logo format. Allowed: JPG, PNG, WEBP.');
+            }
+            $safeExt = $extension === 'jpeg' ? 'jpg' : $extension;
+            $filename = 'logo_' . time() . '_' . \Illuminate\Support\Str::random(8) . '.' . $safeExt;
             $image_resize = Image::make($image->getRealPath());
             $image_resize->resize(null, 32, function ($constraint) {
                 $constraint->aspectRatio();
             });
+            $image_resize->encode($safeExt, 90);
             $image_resize->save(storage_path('app/public/' . $filename));
             if ($setting->system_logo) {
                 if (file_exists(storage_path('app/public/' . $setting->system_logo))) {
-                    unlink(storage_path('app/public/' . $setting->system_logo));
+                    @unlink(storage_path('app/public/' . $setting->system_logo));
                 }
             }
             $validated['system_logo'] = $filename;

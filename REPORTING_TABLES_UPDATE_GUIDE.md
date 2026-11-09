@@ -1,11 +1,11 @@
-# 📊 Reporting Tables Update Guide - Safe SQL Updates
+# Reporting Tables Update Guide - Safe SQL Updates
 
-## 🎯 Overview
+## Overview
 This guide provides safe SQL updates for all tables used in the reporting system. **No data will be lost!**
 
 ---
 
-## 📋 Tables Being Updated
+## Tables Being Updated
 
 ### 1. **APPLICANTS** Table
 **New Fields:**
@@ -64,9 +64,9 @@ This guide provides safe SQL updates for all tables used in the reporting system
 
 ---
 
-## 🚀 Installation Options
+## Installation Options
 
-### ✅ **OPTION 1: Laravel Migration (Recommended)**
+### **OPTION 1: Laravel Migration (Recommended)**
 
 **Steps:**
 ```bash
@@ -80,15 +80,15 @@ database/migrations/2026_01_23_000002_add_reporting_fields_to_tables.php
 ```
 
 **What it does:**
-- ✅ Checks if columns already exist
-- ✅ Adds new columns safely
-- ✅ Auto-populates data (e.g., registration_date from created_at)
-- ✅ Adds performance indexes
-- ✅ **Preserves ALL existing data**
+-  Checks if columns already exist
+-  Adds new columns safely
+-  Auto-populates data (e.g., registration_date from created_at)
+-  Adds performance indexes
+-  **Preserves ALL existing data**
 
 ---
 
-### ✅ **OPTION 2: Manual SQL Execution**
+### **OPTION 2: Manual SQL Execution**
 
 **Steps:**
 
@@ -105,17 +105,17 @@ database/migrations/2026_01_23_000002_add_reporting_fields_to_tables.php
    - Click "Go"
 
 3. **The script will:**
-   - ✅ Check each column before adding
-   - ✅ Add new fields safely
-   - ✅ Create indexes for performance
-   - ✅ Auto-populate data where needed
-   - ✅ Run verification queries
-   - ✅ Show summary statistics
-   - ✅ **Preserve ALL existing data**
+   -  Check each column before adding
+   -  Add new fields safely
+   -  Create indexes for performance
+   -  Auto-populate data where needed
+   -  Run verification queries
+   -  Show summary statistics
+   -  **Preserve ALL existing data**
 
 ---
 
-## 📊 What Gets Added - Summary Table
+## What Gets Added - Summary Table
 
 | Table | New Columns | Purpose |
 |-------|-------------|---------|
@@ -128,7 +128,7 @@ database/migrations/2026_01_23_000002_add_reporting_fields_to_tables.php
 
 ---
 
-## 🔍 Verification Queries
+## Verification Queries
 
 After running the updates, verify with these queries:
 
@@ -179,26 +179,26 @@ LIMIT 10;
 
 ---
 
-## 📈 Benefits for Reporting
+## Benefits for Reporting
 
 ### Before Update:
-- ❌ Limited filtering options
-- ❌ Slow queries on large datasets
-- ❌ Manual calculations needed
-- ❌ No payment method tracking
-- ❌ No status tracking
+-  Limited filtering options
+-  Slow queries on large datasets
+-  Manual calculations needed
+-  No payment method tracking
+-  No status tracking
 
 ### After Update:
-- ✅ Advanced filtering by status, method, region
-- ✅ Fast queries with optimized indexes
-- ✅ Auto-calculated totals
-- ✅ Complete payment tracking
-- ✅ Comprehensive status management
-- ✅ Better analytics capabilities
+-  Advanced filtering by status, method, region
+-  Fast queries with optimized indexes
+-  Auto-calculated totals
+-  Complete payment tracking
+-  Comprehensive status management
+-  Better analytics capabilities
 
 ---
 
-## 🎨 New Reporting Capabilities
+## New Reporting Capabilities
 
 ### 1. **Student Status Reports**
 ```sql
@@ -257,7 +257,7 @@ ORDER BY month DESC;
 
 ---
 
-## 🔄 Data Migration Examples
+## Data Migration Examples
 
 ### Auto-populate registration_date
 ```sql
@@ -277,15 +277,15 @@ WHERE total_amount = 0 OR total_amount IS NULL;
 
 ---
 
-## 🛡️ Safety Features
+## ️ Safety Features
 
 ### Built-in Checks:
-- ✅ Column existence verification
-- ✅ Index existence verification
-- ✅ No duplicate columns
-- ✅ No data overwriting
-- ✅ Automatic data population
-- ✅ Rollback capability
+-  Column existence verification
+-  Index existence verification
+-  No duplicate columns
+-  No data overwriting
+-  Automatic data population
+-  Rollback capability
 
 ### Rollback (If Needed):
 ```bash
@@ -297,7 +297,7 @@ php artisan migrate:rollback --step=1
 
 ---
 
-## 📊 Expected Results
+## Expected Results
 
 ### Applicants Table:
 ```
@@ -319,7 +319,7 @@ After:  id, invoice_id, amount, payment_method, transaction_reference, payment_s
 
 ---
 
-## ⚠️ Important Notes
+## ️ Important Notes
 
 1. **Backup First** (Optional but recommended):
    ```bash
@@ -336,7 +336,7 @@ After:  id, invoice_id, amount, payment_method, transaction_reference, payment_s
 
 ---
 
-## 🎓 Usage in Reports
+## Usage in Reports
 
 After updating, you can now:
 
@@ -368,7 +368,7 @@ $activeBranches = Branch::where('is_active', true)
 
 ---
 
-## ✅ Checklist
+## Checklist
 
 - [ ] Backup database (optional)
 - [ ] Choose update method (Migration or SQL)
@@ -382,7 +382,7 @@ $activeBranches = Branch::where('is_active', true)
 
 ---
 
-## 📞 Support
+## Support
 
 If you encounter any issues:
 1. Check the verification queries
@@ -392,14 +392,14 @@ If you encounter any issues:
 
 ---
 
-## 🎉 Summary
+## Summary
 
-- ✅ **6 tables updated**
-- ✅ **17 new columns added**
-- ✅ **6 performance indexes created**
-- ✅ **100% data preservation**
-- ✅ **Automatic data population**
-- ✅ **Enhanced reporting capabilities**
-- ✅ **Production-ready**
+-  **6 tables updated**
+-  **17 new columns added**
+-  **6 performance indexes created**
+-  **100% data preservation**
+-  **Automatic data population**
+-  **Enhanced reporting capabilities**
+-  **Production-ready**
 
-**Your reporting system is now significantly enhanced!** 🚀
+**Your reporting system is now significantly enhanced!** 

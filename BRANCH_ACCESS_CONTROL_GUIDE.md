@@ -1,6 +1,6 @@
-# 🔐 Branch-Based Access Control System - Implementation Guide
+# Branch-Based Access Control System - Implementation Guide
 
-## 📋 Overview
+## Overview
 
 This system implements **role-based and branch-based access control** where:
 
@@ -11,7 +11,7 @@ This system implements **role-based and branch-based access control** where:
 
 ---
 
-## 🏗️ Architecture Components
+## ️ Architecture Components
 
 ### 1. **Middleware** (`CheckBranchAccess`)
 - Automatically detects user's role
@@ -30,7 +30,7 @@ This system implements **role-based and branch-based access control** where:
 
 ---
 
-## 🚀 Implementation Steps
+## Implementation Steps
 
 ### Step 1: Register Middleware
 
@@ -232,23 +232,23 @@ class ApplicantController extends Controller
 
 ---
 
-## 📊 Permission Matrix
+## Permission Matrix
 
 | Permission | System Admin | Branch Admin | Tutor | Student |
 |------------|--------------|--------------|-------|---------|
-| **View All Branches** | ✅ | ❌ | ❌ | ❌ |
-| **View Own Branch** | ✅ | ✅ | ✅ | ❌ |
-| **Create in Any Branch** | ✅ | ❌ | ❌ | ❌ |
-| **Create in Own Branch** | ✅ | ✅ | ❌ | ❌ |
-| **Update Any Branch** | ✅ | ❌ | ❌ | ❌ |
-| **Update Own Branch** | ✅ | ✅ | ❌ | ❌ |
-| **Delete Any Branch** | ✅ | ❌ | ❌ | ❌ |
-| **Delete Own Branch** | ✅ | ✅ | ❌ | ❌ |
-| **View Own Data** | ✅ | ✅ | ✅ | ✅ |
+| **View All Branches** |  |  |  |  |
+| **View Own Branch** |  |  |  |  |
+| **Create in Any Branch** |  |  |  |  |
+| **Create in Own Branch** |  |  |  |  |
+| **Update Any Branch** |  |  |  |  |
+| **Update Own Branch** |  |  |  |  |
+| **Delete Any Branch** |  |  |  |  |
+| **Delete Own Branch** |  |  |  |  |
+| **View Own Data** |  |  |  |  |
 
 ---
 
-## 🔧 Helper Methods
+## Helper Methods
 
 ### In Controllers:
 
@@ -288,7 +288,7 @@ $applicants = Applicant::forBranch($branchId)->get();
 
 ---
 
-## 🎯 Usage Examples
+## Usage Examples
 
 ### Example 1: Filtering Applicants
 
@@ -356,7 +356,7 @@ public function store(Request $request)
 
 ---
 
-## 🔍 Testing
+## Testing
 
 ### Test Branch Access:
 
@@ -379,19 +379,19 @@ public function store(Request $request)
 
 ---
 
-## 📝 Models to Update
+## Models to Update
 
 Add `BranchScoped` trait to these models:
 
-- ✅ `Applicant` (already done)
-- ⏳ `Venue`
-- ⏳ `Tutor`
-- ⏳ `CourseAssignment`
-- ⏳ Any custom models with `branch_id`
+-  `Applicant` (already done)
+-  `Venue`
+-  `Tutor`
+-  `CourseAssignment`
+-  Any custom models with `branch_id`
 
 ---
 
-## ⚠️ Important Notes
+## ️ Important Notes
 
 1. **Session Management**: Branch ID is stored in session for performance
 2. **Global Scopes**: Automatically applied to all queries
@@ -400,7 +400,7 @@ Add `BranchScoped` trait to these models:
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Issue: Branch admin sees no data
 **Solution:** Check if user has `branch_id` set or has tutor/applicant record
@@ -413,7 +413,7 @@ Add `BranchScoped` trait to these models:
 
 ---
 
-## 🚀 Next Steps
+## Next Steps
 
 1. Register middleware in `Kernel.php`
 2. Apply middleware to routes
@@ -424,4 +424,4 @@ Add `BranchScoped` trait to these models:
 
 ---
 
-**Your system is now secured with branch-based access control!** 🎉
+**Your system is now secured with branch-based access control!** 
