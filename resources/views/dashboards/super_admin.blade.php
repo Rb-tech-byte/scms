@@ -36,23 +36,23 @@
     }
 
     .stat-card.card-students {
-        --card-gradient-start: #667eea;
-        --card-gradient-end: #764ba2;
+        --card-gradient-start: #013ba6;
+        --card-gradient-end: #228ddd;
     }
 
     .stat-card.card-payments {
-        --card-gradient-start: #f093fb;
-        --card-gradient-end: #f5576c;
+        --card-gradient-start: #012b7a;
+        --card-gradient-end: #1a7bc2;
     }
 
     .stat-card.card-balance {
-        --card-gradient-start: #4facfe;
-        --card-gradient-end: #00f2fe;
+        --card-gradient-start: #228ddd;
+        --card-gradient-end: #013ba6;
     }
 
     .stat-card.card-courses {
-        --card-gradient-start: #43e97b;
-        --card-gradient-end: #38f9d7;
+        --card-gradient-start: #1653c7;
+        --card-gradient-end: #52a8e8;
     }
 
     .stat-icon {
@@ -122,7 +122,7 @@
     }
 
     .chart-card .card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #013ba6 0%, #228ddd 100%);
         color: white;
         border: none;
         border-radius: 16px 16px 0 0;
@@ -165,7 +165,7 @@
 
     /* Animated Header */
     .dashboard-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #013ba6 0%, #228ddd 100%);
         position: relative;
         overflow: hidden;
     }

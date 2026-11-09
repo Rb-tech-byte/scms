@@ -38,28 +38,78 @@
 
 
         .square-radio .form-check-input:checked {
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: #013ba6;
+            border-color: #013ba6;
         }
 
         .none {
             display: none;
         }
 
+        :root {
+            --brand-navy: #013ba6;
+            --brand-blue: #228ddd;
+            --brand-yellow: #f4ed2d;
+        }
+
         .open-blue-mode {
-            background-color: #008cda !important;
-            background-image: linear-gradient(135deg, #008cda 0%, #f9ffad 100%) !important;
+            background-color: #013ba6 !important;
+            background-image: linear-gradient(135deg, #013ba6 0%, #228ddd 100%) !important;
         }
 
         .search-results-container {
             position: absolute;
             background-color: #fff;
-            border: 1px solid #f9ffad;
+            border: 1px solid #228ddd;
+            box-shadow: 0 10px 25px rgba(1, 59, 166, 0.15);
             width: 30%;
             max-height: 150px;
             overflow-y: auto;
             z-index: 1000;
             display: none;
+        }
+
+        .btn-primary {
+            background-color: #013ba6 !important;
+            border-color: #013ba6 !important;
+        }
+        .btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+            background-color: #228ddd !important;
+            border-color: #228ddd !important;
+        }
+        .text-primary {
+            color: #013ba6 !important;
+        }
+        .text-brand-blue {
+            color: #228ddd !important;
+        }
+        .text-brand-yellow {
+            color: #f4ed2d !important;
+        }
+        .bg-brand-navy {
+            background-color: #013ba6 !important;
+        }
+        .bg-brand-blue {
+            background-color: #228ddd !important;
+        }
+        .bg-brand-yellow {
+            background-color: #f4ed2d !important;
+            color: #013ba6 !important;
+        }
+        .badge.bg-warning {
+            background-color: #f4ed2d !important;
+            color: #013ba6 !important;
+            font-weight: 700;
+        }
+        .nav-fixed .topnav .navbar-brand {
+            color: #013ba6 !important;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        .topnav img {
+            max-height: 42px;
+            width: auto;
+            object-fit: contain;
         }
     </style>
 </head>

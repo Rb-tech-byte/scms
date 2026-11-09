@@ -4,8 +4,7 @@
 @endsection
 @section('h1')
      <img class="only-small-screen" src="{{ URL::to('mini.png') }}" alt="Logo">
-    <h1 class="text-welcom" style="color: black !!important">WELCOME TO SHORT COURSE MANAGEMENT SYSTEM [SCMS]</h1>
-
+    <h1 class="text-welcome-title" style="color: #013ba6; font-size: 20px; font-weight: 700; margin-bottom: 20px; text-align: center;">WELCOME TO SHORT COURSE MANAGEMENT SYSTEM (SCMS)</h1>
 @endsection
 @section('content')
     <form method="POST" action="{{ route('login') }}">

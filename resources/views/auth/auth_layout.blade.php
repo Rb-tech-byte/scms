@@ -34,7 +34,7 @@
                 </p>
                     </div>
                 </div>
-                <div class="login-right" style="background: #f9ffad;">
+                <div class="login-right" style="background: #ffffff;">
                     <div class="login-right-wrap">
                         @yield('h1')
                          @if(request()->routeIs('login'))

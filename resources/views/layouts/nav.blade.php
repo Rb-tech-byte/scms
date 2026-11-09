@@ -6,11 +6,8 @@
 
     <a class="btn btn-icon btn-transparent-dark order-1 order-lg-0 me-2 ms-lg-2 me-lg-0" id="sidebarToggle">
         @php
-        if ($setting) {
-        echo '<img src="' . ($setting->system_logo ? url(\Storage::url($setting->system_logo)) : asset('mini.png')) . '" alt="Logo" />';
-        } else {
-        echo '<img src="' . asset('mini.png') . '" alt="Logo" />';
-        }
+        $logoSrc = ($setting && $setting->system_logo) ? url(\Storage::url($setting->system_logo)) : asset('mini.png');
+        echo '<img src="' . $logoSrc . '" alt="Logo" style="height: 38px; width: 38px; object-fit: contain;" />';
         @endphp
        </a>
 

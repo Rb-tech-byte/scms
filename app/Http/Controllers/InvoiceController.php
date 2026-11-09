@@ -268,7 +268,7 @@ class InvoiceController extends Controller
 
         // Invoice Status
         $pdf->SetTextColor(255, 255, 255);
-        $pdf->SetFillColor(0, 123, 255);
+        $pdf->SetFillColor(1, 59, 166);
         $pdf->Cell(40, 10, '', 0);
         $pdf->Cell(40, 10, '', 0);
         $pdf->Cell(50, 10, '#' . $invoice->invoice_prefix, 1, 0, 'C', 1);

@@ -1,0 +1,166 @@
+/* SCMS Logo-Matched Authentication Theme */
+/* Extracted Brand Palette:
+   - Deep Navy (Emblem 'U'): #013ba6
+   - Vibrant Cerulean (Outer Arc): #228ddd
+   - Sun Yellow (Accent Dot): #f4ed2d
+   - Soft Tint: #e8f4fc
+*/
+
+.login-body {
+    background: #f0f4f9 !important;
+}
+
+.loginbox {
+    background-color: #ffffff !important;
+    border: 1px solid #d2eaf9;
+    box-shadow: 0 12px 35px rgba(1, 59, 166, 0.12) !important;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.login-left,
+.loginbox .login-left {
+    background: linear-gradient(145deg, #013ba6 0%, #228ddd 100%) !important;
+    align-items: center;
+    padding: 40px 30px;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.login-left img {
+    max-width: 140px;
+    max-height: 140px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.2));
+    margin-bottom: 20px;
+}
+
+.auth-left-title {
+    color: #f4ed2d !important;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+    padding-top: 10px;
+    text-align: center;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.auth-left-contact {
+    text-align: center;
+    color: #e8f4fc;
+    margin-top: 18px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.auth-left-contact .contact {
+    color: #f4ed2d;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1px;
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.auth-left-contact .telephone,
+.auth-left-contact .email {
+    color: #ffffff;
+    font-weight: 500;
+}
+
+.loginbox .login-right {
+    background: #ffffff !important;
+    padding: 40px;
+}
+
+.loginbox .login-right h2 {
+    color: #013ba6;
+    font-weight: 700;
+}
+
+.form-control {
+    border: 1px solid #c9dff1;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #228ddd !important;
+    box-shadow: 0 0 0 3px rgba(34, 141, 221, 0.2) !important;
+}
+
+.btn-primary {
+    background: #013ba6 !important;
+    border-color: #013ba6 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 12px 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active {
+    background: #228ddd !important;
+    border-color: #228ddd !important;
+    box-shadow: 0 4px 15px rgba(34, 141, 221, 0.35) !important;
+}
+
+.uni-blue,
+.forgotpass a,
+.dont-have a,
+.account-subtitle a {
+    color: #013ba6 !important;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.uni-blue:hover,
+.forgotpass a:hover,
+.dont-have a:hover,
+.account-subtitle a:hover {
+    color: #228ddd !important;
+    text-decoration: underline;
+}
+
+.custom_check input:checked ~ .checkmark {
+    background-color: #013ba6 !important;
+    border-color: #013ba6 !important;
+}
+
+.login-danger {
+    color: #013ba6 !important;
+    font-weight: bold;
+}
+
+.profile-views i,
+.profile-views {
+    color: #228ddd !important;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 600px) {
+    .only-small-screen {
+        display: block;
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 15px;
+        object-fit: contain;
+    }
+
+    .text-welcome-title {
+        font-size: 16px !important;
+        text-align: center !important;
+    }
+}
+
+@media (min-width: 601px) {
+    .only-small-screen {
+        display: none;
+    }
+}
