@@ -116,11 +116,18 @@ return new class extends Migration {
         // 5. COURSES TABLE
         // ========================================
         Schema::table('courses', function (Blueprint $table) {
+            $afterCol = Schema::hasColumn('courses', 'title') ? 'title' : (Schema::hasColumn('courses', 'name') ? 'name' : null);
             if (!Schema::hasColumn('courses', 'is_active')) {
-                $table->boolean('is_active')->default(true)->after('name');
+                $col = $table->boolean('is_active')->default(true);
+                if ($afterCol) {
+                    $col->after($afterCol);
+                }
             }
             if (!Schema::hasColumn('courses', 'category')) {
-                $table->string('category', 100)->nullable()->after('name');
+                $col = $table->string('category', 100)->nullable();
+                if ($afterCol) {
+                    $col->after($afterCol);
+                }
             }
         });
 

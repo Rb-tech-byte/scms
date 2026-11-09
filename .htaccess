@@ -1,1 +1,9 @@
- 
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /scms/
+
+    # Redirect to public subfolder so Laravel base URL and assets work seamlessly
+    RewriteRule ^$ public/ [L,R=301]
+    RewriteCond %{REQUEST_URI} !^/scms/public/ [NC]
+    RewriteRule ^(.*)$ public/$1 [L,R=301]
+</IfModule>

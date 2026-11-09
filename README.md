@@ -1,66 +1,132 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Short Course Management System (SCMS)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Online Course Registration & Management System for the **Institute of Education and Management Technologies (IEMT) — Open University of Tanzania**.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Overview
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+The **Short Course Management System (SCMS)** is an enterprise academic administration portal built on Laravel. It streamlines applicant self-registration, course management, multi-branch operations, multi-installment tuition payment schedules, financial invoice tracking, attendance tracking, and completion certification.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## 🔑 Your Compliant Credentials
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Use these test accounts to verify user acceptance across roles:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+| Account | Email | Compliant Password | Role |
+| :--- | :--- | :--- | :--- |
+| **System Admin** | `admin@scms.out.ac.tz` | `Scms@Admin2026!#` | System Admin |
+| **Staff / Tutor** | `info@wolinet.com` | `Scms@Admin2026!#` | Staff |
+| **Student** | `bernadorenatus32@gmail.com` | `Scms@Admin2026!#` | Student |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+> **Note:** The application enforces a strict security policy requiring at least 8 characters, mixed case, numbers, special characters, and non-compromised passwords. The test credentials above are pre-configured to comply with this policy.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## 📋 Key Modules & Features
 
-### Premium Partners
+- **Applicant Registration**: Online student enrollment portal with course selection and branch assignment.
+- **Course & Venue Management**: Multi-venue scheduling, course durations, pricing tiers, and tutor assignments.
+- **Billing & Payment Schedules**: 
+  - Dynamic invoice generation with automated discount calculations.
+  - Multi-installment payment schedule tracking and receipt generation.
+- **Role-Based Access Control (RBAC)**: Fine-grained permissions powered by DaVinci RBAC (System Admin, Branch Admin, Tutor, Student).
+- **Attendance & Certifications**: Attendance verification and verifiable completion certificate generation.
+- **Reporting & Business Analytics**: Real-time revenue reports, branch-level metrics, and tutor workload analytics.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+---
 
-## Contributing
+## 🛠️ System Requirements
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- **PHP**: `>= 8.2` (PHP 8.3 recommended)
+  - Required Extensions: `bcmath`, `ctype`, `curl`, `dom`, `fileinfo`, `gd`, `intl`, `json`, `mbstring`, `openssl`, `pcre`, `pdo_mysql`, `tokenizer`, `xml`, `zip`
+- **Web Server**: Apache / Nginx (MAMP, XAMPP, or standalone)
+- **Database**: MySQL `>= 5.7` or MariaDB `>= 10.3`
+- **Dependency Manager**: Composer `>= 2.0`
+- **Node.js**: `>= 18.x` & npm
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 💻 Local Installation & Setup (MAMP / Standard)
 
-## Security Vulnerabilities
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Rb-tech-byte/scms.git
+cd scms
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 2. Configure Environment
+Copy `.env.example` or create `.env`:
+```bash
+cp .env.example .env
+```
+Update your database configuration in `.env`:
+```env
+APP_NAME=SCMS
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost:8888/scms/public
 
-## License
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=8889
+DB_DATABASE=scms
+DB_USERNAME=root
+DB_PASSWORD=root
+DB_SOCKET=/Applications/MAMP/tmp/mysql/mysql.sock
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 3. Install PHP Dependencies
+```bash
+composer install
+php artisan key:generate
+```
+
+### 4. Database Setup & Migrations
+Create the database in MySQL and run migrations:
+```bash
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS scms CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+php artisan migrate --force
+```
+*(Optional: Import base dataset using `mysql -u root -p scms < scms.sql` if starting from the seeded snapshot).*
+
+### 5. Build Assets & Link Storage
+```bash
+npm install
+npm run build
+php artisan storage:link
+```
+
+### 6. Run the Application
+When using MAMP, access:
+- **Local Application URL**: `http://localhost:8888/scms/public/login` (or `http://localhost:8888/scms`)
+
+Alternatively, start the Laravel built-in server:
+```bash
+php artisan serve
+```
+
+---
+
+## 🧪 User Acceptance Testing (UAT) Guide
+
+1. **System Admin Testing**:
+   - Log in with `admin@scms.out.ac.tz` / `Scms@Admin2026!#`.
+   - Access the Main Dashboard at `/dashboard`.
+   - Review `/applicants`, `/courses`, `/branches`, `/invoices`, and `/payments`.
+   - Check Branch Analytics at `/analytics/branches`.
+
+2. **Tutor / Staff Testing**:
+   - Log in with `info@wolinet.com` / `Scms@Admin2026!#`.
+   - Review assigned course modules, student attendance, and course rosters.
+
+3. **Student Testing**:
+   - Log in with `bernadorenatus32@gmail.com` / `Scms@Admin2026!#`.
+   - View enrolled courses, invoice balances, payment receipts, and certificate status.
+
+---
+
+## 📄 License
+Open-sourced software developed for Open University of Tanzania.

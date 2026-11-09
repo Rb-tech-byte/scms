@@ -11,8 +11,8 @@
     <title>@yield('title')</title>
 
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
-    <link href="http://127.0.0.1:8000/assets/css/styles.css" rel="stylesheet" />
-    <link rel="icon" type="image/x-icon" href="http://127.0.0.1:8000/assets/assets/img/favicon.png" />
+    <link href="{{ asset('assets/css/styles.css') }}" rel="stylesheet" />
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets/assets/img/favicon.png') }}" />
 
 </head>
 
