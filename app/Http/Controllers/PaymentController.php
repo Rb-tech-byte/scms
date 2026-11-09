@@ -12,9 +12,37 @@ use Illuminate\Http\RedirectResponse;
 use \Spatie\Activitylog\Models\Activity;
 use App\Traits\SocialSmartTechConstants;
 
+/**
+ * Class PaymentController
+ *
+ * Coordinates fee collection, installment reconciliation, balance calculation,
+ * and immutable payment audit recording.
+ *
+ * DEVELOPER EXTENSION & GATEWAY INTEGRATION GUIDE:
+ * 1. Financial Immutability Policy:
+ *    - In accordance with public accounting standards, payment records are immutable.
+ *    - The `edit()` action intentionally redirects back with a warning and records an unauthorized
+ *      edit attempt in the Spatie activity log.
+ *
+ * 2. Automated Payment Integration (M-Pesa / GePG / AirtelMoney / TigoPesa / Stripe):
+ *    - To add an automated gateway, create an API route/controller (e.g. `Api/PaymentGatewayController`)
+ *      that receives the payment provider's webhook payload.
+ *    - Verify provider cryptographic signature (e.g., HMAC-SHA256).
+ *    - Call the same invoice balance recalculation logic found in `store()`:
+ *      $newBalance = max(0, $remaining - $amount);
+ *      $invoice->update(['balance' => $newBalance, 'paid_amount' => $newPaid, 'status' => $status]);
+ *      Payment::create([...]);
+ */
 class PaymentController extends Controller
 {
     use SocialSmartTechConstants;
+
+    /**
+     * Display a paginated listing of tuition payments filtered by branch scope.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function index(Request $request)
     {
         if (!$this->hasPermission('List payments')) {
@@ -39,6 +67,9 @@ class PaymentController extends Controller
 
     /**
      * Show the form for creating a new resource.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
      */
     public function create(Request $request)
     {
@@ -54,7 +85,11 @@ class PaymentController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created tuition payment, calculate remaining invoice balance,
+     * update invoice status, and record the cashier employee ID.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request): RedirectResponse
     {

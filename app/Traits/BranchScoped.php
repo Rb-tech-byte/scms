@@ -5,10 +5,43 @@ namespace App\Traits;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Trait BranchScoped
+ *
+ * Provides multi-tenant data isolation and role-based query scoping across the application.
+ *
+ * ARCHITECTURAL OVERVIEW FOR FUTURE DEVELOPERS:
+ * 1. Global Scope Application:
+ *    When this trait is attached to an Eloquent model, it registers a global query scope named 'branch'.
+ *    Every Eloquent query (e.g. Model::all(), Model::where(), relations) automatically has branch filters appended.
+ *
+ * 2. Role-Based Visibility Rules:
+ *    - 'system-admin': Bypasses all scoping. Has unrestricted national/global visibility across all branches.
+ *    - 'branch-admin' & 'tutor': Constrained strictly to records belonging to their active branch (via session 'user_branch_id').
+ *    - 'student': Constrained strictly to records belonging to their own user account (via user_id or applicant.user_id).
+ *
+ * 3. Relationship Traversal Hierarchy:
+ *    If the model table has a direct 'branch_id', that column is filtered directly.
+ *    Otherwise, the scope traverses relationships in order:
+ *      applicant_id -> applicant.branch_id
+ *      enrollment_id -> enrollment.applicant.branch_id
+ *      invoice_id -> invoice.applicant.branch_id
+ *      venue_id -> venue.branch_id
+ *
+ * 4. How to Extend / Add to New Models:
+ *    Simply add `use \App\Traits\BranchScoped;` to any Eloquent model that represents branch-segregated data.
+ *    Ensure the model defines the necessary relationship (e.g. applicant(), enrollment(), or branch_id).
+ *
+ * 5. Bypassing Scope in Background Jobs / CLI:
+ *    To query all branches intentionally (e.g., in scheduled cron tasks, reports, or console commands):
+ *    Use `Model::withoutGlobalScope('branch')->get();`
+ */
 trait BranchScoped
 {
     /**
-     * Boot the trait
+     * Boot the trait and apply the global branch/user data isolation scope.
+     *
+     * @return void
      */
     protected static function bootBranchScoped()
     {

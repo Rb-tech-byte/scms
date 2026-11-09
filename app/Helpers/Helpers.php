@@ -1,22 +1,61 @@
 <?php
+
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Crypt;
 
+/**
+ * GLOBAL HELPER FUNCTIONS
+ *
+ * This file is automatically loaded via composer.json autoload.files.
+ * It provides core utility functions for security encryption, phone formatting,
+ * UI navigation rendering, image manipulation, and permission syncing.
+ */
+
+/**
+ * Determine if current route matches path and return active CSS class.
+ *
+ * @param string|array $path Pattern or array of path patterns (e.g. 'applicants*')
+ * @param string $active CSS class to return on match (default 'active')
+ * @return string
+ */
 function setActive($path, $active = 'active')
 {
     return call_user_func_array('Request::is', (array)$path) ? $active : '';
 }
-//function to Encrypt ID
+
+/**
+ * Encrypt an identifier or sensitive string using Laravel application key.
+ *
+ * SST = Social Smart Tech cryptographic helper.
+ *
+ * @param string|int $id
+ * @return string
+ */
 function sst($id){
     return Crypt::encryptString($id);
 }
 
-//function to Decrypt ID
+/**
+ * Decrypt an identifier or string previously encrypted with sst().
+ *
+ * TSS = Symmetric decryption counterpart to sst().
+ *
+ * @param string $id
+ * @return string
+ */
 function tss($id){
     return Crypt::decryptString($id);
 }
 
-
+/**
+ * Generate collapsible sidebar menu HTML markup with route active state detection.
+ *
+ * @param string $routeName Parent route identifier
+ * @param string $icon Feather icon identifier name
+ * @param string $title Display title for the menu accordion
+ * @param array $subRoutes Array of child route items [['name' => '...', 'title' => '...']]
+ * @return string HTML markup
+ */
 function generateSidebarLink($routeName, $icon, $title, $subRoutes) {
     $isActive = request()->routeIs($routeName) ? 'active' : 'collapsed';
     $isShow = request()->routeIs($routeName) ? 'show' : '';
@@ -37,8 +76,16 @@ function generateSidebarLink($routeName, $icon, $title, $subRoutes) {
     return $html;
 }
 
-
-
+/**
+ * Generate RBAC-aware collapsible sidenav accordion item.
+ * Evaluates authenticated user permissions before rendering child links.
+ *
+ * @param string $routeName Base route prefix
+ * @param string $icon Feather icon identifier name
+ * @param string $title Sidenav label
+ * @param array $subRoutes Array of child items with 'name', 'title', and optional 'permission'
+ * @return string HTML markup
+ */
 function generateSidenavAccordion($routeName, $icon, $title, $subRoutes)
 {
     $isActive = request()->is($routeName . '*') ? 'active' : 'collapsed';
@@ -69,7 +116,12 @@ function generateSidenavAccordion($routeName, $icon, $title, $subRoutes)
 
 }
 
-
+/**
+ * Check if the current HTTP request matches any standard resourceful action route.
+ *
+ * @param string $route Resource name prefix (e.g. 'applicants')
+ * @return bool True if currently matching index, create, store, show, edit, update, or destroy
+ */
 function resourceRoutes($route){
     $resource = [
         'index' => $route . '.index',
@@ -88,7 +140,12 @@ function resourceRoutes($route){
     return in_array(true, $routes);
 }
 
-
+/**
+ * Sanitize and validate telephone numbers into purely numeric digit strings.
+ *
+ * @param string $phoneNumber Raw user-supplied phone string
+ * @return string|false Cleaned digits or false if invalid format/length
+ */
 function validateAndCleanPhoneNumber($phoneNumber)
 {
     $phoneNumber = trim($phoneNumber);
@@ -107,6 +164,13 @@ function validateAndCleanPhoneNumber($phoneNumber)
     return $cleanedNumber;
 }
 
+/**
+ * Normalize and convert telephone numbers into standard international format.
+ * Defaults to Tanzania United Republic telecommunication country code (255).
+ *
+ * @param string $number Phone string (e.g. '0712345678', '+255712345678')
+ * @return string Standardized string e.g. '255712345678'
+ */
 function validatePhoneNumber($number): String
 {
     $phone_number = preg_replace("/[^0-9]/", '', $number);
@@ -329,6 +393,18 @@ function trimValues(array $data): array
 //     return $validated;
 // }
 
+/**
+ * Process, resize, optimize, and securely store uploaded images.
+ * Enforces conversion to JPG format, neutralizing any potential script execution (php2shell mitigation).
+ * Dynamically reduces JPEG compression quality until file size is under 100KB for web performance.
+ *
+ * @param \Illuminate\Http\UploadedFile $image Uploaded file object
+ * @param string|null $filename Destination filename (defaults to timestamp.jpg)
+ * @param int|null $width Target width in pixels (or null to preserve aspect ratio)
+ * @param int|null $height Target height in pixels (or null to preserve aspect ratio)
+ * @param string|null $path Subdirectory under public/storage/ (e.g. 'profile/')
+ * @return void
+ */
 function imageEngine($image, $filename = null, $width = null, $height = null,$path=null)
 {
 
@@ -391,6 +467,13 @@ function imageEngine($image, $filename = null, $width = null, $height = null,$pa
     } while ($fileSize > 100);
 }
 
+/**
+ * Remove an image file from the public storage disk if it exists.
+ *
+ * @param string $image Filename
+ * @param string|null $path Subfolder relative to public/storage/
+ * @return void
+ */
 function deleteImage($image, $path = null)
 {
     $path = public_path("storage/$path");
@@ -407,6 +490,15 @@ use App\Models\User;
 use App\Models\UserPermission;
 
 if (!function_exists('sendEmail')) {
+    /**
+     * Dispatch transactional email using the application's default SMTP configuration.
+     *
+     * @param string $to Recipient email address
+     * @param string $name Recipient name
+     * @param string $subject Email subject line
+     * @param string $message Email body content
+     * @return void
+     */
     function sendEmail($to, $name, $subject, $message)
     {
         $data = array(
@@ -421,20 +513,32 @@ if (!function_exists('sendEmail')) {
 }
 
 if(!function_exists('user_name')){
+    /**
+     * Look up and format user display name by user ID.
+     *
+     * @param int $id
+     * @return string
+     */
     function user_name($id){
         $user = \App\Models\User::find($id);
-        return ucwords($user->name);
+        return $user ? ucwords($user->name) : 'N/A';
     }
 }
 
 if(!function_exists('applicant_name')){
+    /**
+     * Look up applicant full name by applicant ID.
+     *
+     * @param int|null $id
+     * @return string
+     */
     function applicant_name($id){
         if($id == null){
             return 'N/A';
         }else{
             $applicant = \App\Models\Applicant::find($id);
             if($applicant == null){
-                return $id;
+                return (string) $id;
             }else{
                 return ucwords($applicant->full_name);
             }
@@ -442,7 +546,12 @@ if(!function_exists('applicant_name')){
     }
 }
 
-
+/**
+ * Generate a unique sequential-random invoice reference code.
+ * Format: OUT + 3 digits + 3 uppercase letters + 3 alphanumeric characters (e.g. 'OUT104ABC9X2').
+ *
+ * @return string
+ */
 function generateInvoicePrefix()
 {
     $numericPart = str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT);
@@ -461,29 +570,28 @@ function generateInvoicePrefix()
     return $prefix;
 }
 
-
+/**
+ * Retrieve global site settings cache/record.
+ *
+ * @return array
+ */
 function getSiteSettings()
 {
-    $siteSettings = \App\Models\Setting::first()
-        ->only([
-            'system_name',
-            'system_logo',
-            'allow_dark_sidebar',
-            'allow_message',
-            'allow_email',
-            'enable_upload_receipt',
-            // 'mail_mailer',
-            // 'mail_host',
-            // 'mail_port',
-            // 'mail_username',
-            // 'mail_password',
-            // 'mail_encryption',
-            // 'mail_from_address',
-            'site_description',
-            'site_contact_email',
-            'site_contact_number',
-        ]);
-    return $siteSettings;
+    $setting = \App\Models\Setting::first();
+    if (!$setting) {
+        return [];
+    }
+    return $setting->only([
+        'system_name',
+        'system_logo',
+        'allow_dark_sidebar',
+        'allow_message',
+        'allow_email',
+        'enable_upload_receipt',
+        'site_description',
+        'site_contact_email',
+        'site_contact_number',
+    ]);
 }
 
 use SimpleSoftwareIO\QrCode\Facades\QrCode;

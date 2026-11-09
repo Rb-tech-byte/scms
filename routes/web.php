@@ -33,14 +33,29 @@ use Codedge\Fpdf\Fpdf\Fpdf;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes
+| Web Routes - Short Course Management System (SCMS)
 |--------------------------------------------------------------------------
 |
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
+| ROUTE ARCHITECTURE FOR FUTURE DEVELOPERS:
+| 1. Public & Guest Routes:
+|    - Root ('/') redirects directly to authentication login.
+|    - Public invoice view ('/ViewInvoice/{id}') generates verifiable PDF invoice with QR code.
+|    - Force password reset ('force-password-reset') enforces policy compliance upon first login.
 |
+| 2. Authentication:
+|    - Managed via standard Laravel Auth routes (Auth::routes()).
+|
+| 3. Authenticated Administrative & Academic Routes (Grouped under 'auth' middleware):
+|    - Core Academic: Applicants, Courses, Venues, Branches, Enrollments, Course Assignments.
+|    - Financial Management: Invoices, Payments, Payment Schedules, Reminders.
+|    - Access Control & Security: Roles, Permissions, Users, System Logs.
+|    - Analytics & Reporting: Branch analytics, discount audits, workload reports.
+|    - Modular Extensions: Certificates, Attendance rosters, Notification templates.
 */
+
+// =========================================================================
+// SECTION 1: PUBLIC & GUEST ENDPOINTS
+// =========================================================================
 
 Route::get('/', function () {
     //check system setting
@@ -217,60 +232,78 @@ Route::get('/get-branches', [ApiController::class, 'fetchBranch']);
 
 
 
+// =========================================================================
+// SECTION 2: AUTHENTICATED PORTAL MODULES
+// =========================================================================
+// All routes inside this group require an active authenticated user session.
+// BranchScoped models automatically filter queries based on the user's role.
+
 Route::prefix('/')
     ->middleware('auth')
     ->group(function () {
+        // Access Denial Fallback
         route::get('permission-denied', function () {
             abort(403);
         })->name('permission-denied');
+
+        // RBAC & Access Control
         Route::resource('roles', RoleController::class);
         Route::resource('permissions', PermissionController::class);
         Route::get('permission/manage/{role_id?}', [PermissionController::class,'manage_permission'])->name('permission.manage');
         Route::post('permission/assign-role/', [PermissionController::class,'assignPermissionRole'])->name('permission.assign_role_permissions');
         Route::post('encrypt/role/', [PermissionController::class,'encryptRole'])->name('encrypt.role');
+        Route::put('user/updatePermissions/{user_id}', [UserController::class, 'updatePermissions'])->name('user.updatePermissions');
+        Route::resource('users', UserController::class);
+
+        // Academic Structure & Facilities
         Route::resource('branches', BranchController::class);
         Route::resource('venues', VenueController::class);
+        Route::resource('countries', CountryController::class);
+        Route::resource('courses', CourseController::class);
+        Route::resource('enrollments', EnrollmentController::class);
+        Route::resource('course-assignments', CourseAssignmentController::class);
+        Route::get('update-assigned-course-teached-status/{course_id}', [CourseAssignmentController::class, 'update_schedule_status'])->name('update-teached.course');
+        Route::get('branch-course-assignment', [CourseAssignmentController::class, 'getBranchCourseAssignment'])->name('course-assignment.branch');
+
+        // Tutors & Faculty
+        Route::resource('tutors', TutorController::class);
+        Route::get('/view-tutor/{id}', [TutorController::class, 'view_tutor'])->name('view.tutor');
+        Route::get('/t-upcoming-session', [TutorController::class, 'upcoming_session'])->name('tutor.upcoming_session');
+        Route::get('/t-completed-session', [TutorController::class, 'completed_session'])->name('tutor.completed_session');
+
+        // Student Applicants & Intake
         Route::resource('applicants', ApplicantController::class);
-        Route::resource('payments', PaymentController::class);
+
+        // Billing, Invoicing & Financial Accounting
         Route::resource('invoices', InvoiceController::class);
         Route::get('partial/invoice', [InvoiceController::class, 'partial_invoice'])->name('invoice.partial');
         Route::get('paid/invoice', [InvoiceController::class, 'paid_invoice'])->name('invoice.paid');
-        Route::resource('notifications', NotificationController::class);
-        Route::put('user/updatePermissions/{user_id}', [UserController::class, 'updatePermissions'])->name('user.updatePermissions');
-        Route::resource('users', UserController::class);
-        Route::resource('countries', CountryController::class);
-        Route::resource('enrollments', EnrollmentController::class);
-        Route::resource('courses', CourseController::class);
-        Route::resource('settings', SettingController::class);
-        Route::resource('tutors', TutorController::class);
-        Route::get('/view-tutor/{id}', [TutorController::class, 'view_tutor'])->name('view.tutor');
-        Route::resource('course-assignments', CourseAssignmentController::class);
-        Route::get('update-assigned-course-teached-status/{course_id}', [CourseAssignmentController::class, 'update_schedule_status'])->name('update-teached.course');
-        Route::get('system-logs', [SettingController::class, 'show_system_logs'])->name('system.logs');
-        Route::get('system-logs-clear', [SettingController::class, 'clear_system_logs'])->name('system.logs.clear');
+        Route::get('generate-invoice-pdf/{id}', [InvoiceController::class, 'generate_invoice_pdf'])->name('invoice_pdf.generate');
+        Route::resource('payments', PaymentController::class);
         Route::post('filtercourse', [PaymentController::class, 'getCourse'])->name('payment.filter_course');
         Route::post('course_amount', [PaymentController::class, 'getCourseAmount'])->name('payment.course_amount');
-        Route::get('branch-course-assignment', [CourseAssignmentController::class, 'getBranchCourseAssignment'])->name('course-assignment.branch');
+
+        // Communications & Notifications
+        Route::resource('notifications', NotificationController::class);
+        Route::get('message/{id}', [NotificationController::class, 'show_message'])->name('message.show');
+        Route::get('messages', [NotificationController::class, 'show_all_messages'])->name('message.show_all');
+
+        // System Settings & Administrative Audit Logs
+        Route::resource('settings', SettingController::class);
+        Route::get('system-logs', [SettingController::class, 'show_system_logs'])->name('system.logs');
+        Route::get('system-logs-clear', [SettingController::class, 'clear_system_logs'])->name('system.logs.clear');
         Route::get('redirect-back', function () {
             return redirect()->back();
         })->name('redirect.back');
 
-        Route::get('generate-invoice-pdf/{id}', [InvoiceController::class, 'generate_invoice_pdf'])->name('invoice_pdf.generate');
-        Route::get('message/{id}', [NotificationController::class, 'show_message'])->name('message.show');
-        Route::get('messages', [NotificationController::class, 'show_all_messages'])->name('message.show_all');
-
-        //TUTOR ROUTES
-        Route::get('/t-upcoming-session', [TutorController::class, 'upcoming_session'])->name('tutor.upcoming_session');
-        Route::get('/t-completed-session', [TutorController::class, 'completed_session'])->name('tutor.completed_session');
-
-        //REPORTS
+        // Reporting, Exports & Global Search
         Route::get('/export-applicant-report-to-pdf', [ReportController::class,'exportApplicantReportToPDF']);
         Route::get('/export-applicant-report-to-excel', [ReportController::class,'exportApplicantReportToExcel']);
         Route::get('/export-applicant-report-to-csv', [ReportController::class,'exportApplicantReportToCSV']);
         Route::get('/view-applicant-report/{query?}', [ReportController::class,'ApplicantReport'])->name('applicant.report');
         Route::post('/global-search', [GlobalSearchController::class, 'search'])->name('global.search');
 
-        // PAYMENT SCHEDULES
+        // Payment Schedules & Automated Reminders
         Route::get('payment-schedules', [PaymentScheduleController::class, 'index'])->name('payment-schedules.index');
         Route::get('payment-schedules/create', [PaymentScheduleController::class, 'create'])->name('payment-schedules.create');
         Route::post('payment-schedules/generate', [PaymentScheduleController::class, 'generate'])->name('payment-schedules.generate');
@@ -282,20 +315,14 @@ Route::prefix('/')
         Route::get('payment-reminders', [PaymentScheduleController::class, 'reminders'])->name('payment-schedules.reminders');
         Route::post('payment-reminders/send', [PaymentScheduleController::class, 'sendReminders'])->name('payment-schedules.send-reminders');
 
-        // CERTIFICATES (stubs)
-        Route::get('certificates', [CertificateController::class, 'index']);
-        Route::get('certificates/verify', [CertificateController::class, 'verify']);
-
-        // ATTENDANCE (stubs)
-        Route::get('attendance', [AttendanceController::class, 'index']);
-        Route::get('attendance/export', [AttendanceController::class, 'export']);
-
-        // ANALYTICS (stubs)
-        Route::get('analytics/branches', [AnalyticsController::class, 'branches']);
-        Route::get('analytics/discounts', [AnalyticsController::class, 'discounts']);
-        Route::get('analytics/tutor-workload', [AnalyticsController::class, 'tutorWorkload']);
-
-        // NOTIFICATION TEMPLATES (stubs)
-        Route::get('notifications/templates', [NotificationTemplateController::class, 'index']);
+        // Modular Extension Stubs (Certificates, Attendance, Analytics, Templates)
+        Route::get('certificates', [CertificateController::class, 'index'])->name('certificates.index');
+        Route::get('certificates/verify', [CertificateController::class, 'verify'])->name('certificates.verify');
+        Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+        Route::get('attendance/export', [AttendanceController::class, 'export'])->name('attendance.export');
+        Route::get('analytics/branches', [AnalyticsController::class, 'branches'])->name('analytics.branches');
+        Route::get('analytics/discounts', [AnalyticsController::class, 'discounts'])->name('analytics.discounts');
+        Route::get('analytics/tutor-workload', [AnalyticsController::class, 'tutorWorkload'])->name('analytics.tutor_workload');
+        Route::get('notifications/templates', [NotificationTemplateController::class, 'index'])->name('notifications.templates');
 
     });
