@@ -13,6 +13,12 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         Paginator::useBootstrap();
+
+        // Bind Intervention ImageManager to container 'image' to resolve compatibility with Laravel 13
+        $this->app->singleton('image', function () {
+            $driver = extension_loaded('imagick') ? 'imagick' : 'gd';
+            return new \Intervention\Image\ImageManager(['driver' => $driver]);
+        });
     }
 
 

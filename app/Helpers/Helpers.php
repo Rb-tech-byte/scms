@@ -412,7 +412,8 @@ function imageEngine($image, $filename = null, $width = null, $height = null,$pa
 
     $filename = $filename ? $filename : time() . '.' . 'jpg';
 
-    $image_resize = Image::make($image->getRealPath());
+    $manager = new \Intervention\Image\ImageManager(['driver' => extension_loaded('imagick') ? 'imagick' : 'gd']);
+    $image_resize = $manager->make($image->getRealPath());
 
     if ($width == null && $height == null) {
         if ($image->width() > $image->height()) {

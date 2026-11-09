@@ -183,7 +183,8 @@ class SettingController extends Controller
             }
             $safeExt = $extension === 'jpeg' ? 'jpg' : $extension;
             $filename = 'logo_' . time() . '_' . \Illuminate\Support\Str::random(8) . '.' . $safeExt;
-            $image_resize = Image::make($image->getRealPath());
+            $manager = new \Intervention\Image\ImageManager(['driver' => extension_loaded('imagick') ? 'imagick' : 'gd']);
+            $image_resize = $manager->make($image->getRealPath());
             $image_resize->resize(null, 32, function ($constraint) {
                 $constraint->aspectRatio();
             });
