@@ -7,6 +7,13 @@
         "framework"
     ],
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Renatus Bernardo",
+            "email": "bernadorenatus32@gmail.com",
+            "role": "Author & Lead Developer"
+        }
+    ],
     "require": {
         "php": "^8.3 || ^8.4 || ^8.5",
         "barryvdh/laravel-dompdf": "^3.1",

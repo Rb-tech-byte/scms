@@ -137,6 +137,13 @@ php artisan storage:link
 
 ---
 
+## Authorship and Development Credits
+
+- **Author & Lead Developer:** Renatus Bernardo (`bernadorenatus32@gmail.com`)
+- **Institution:** Institute of Education and Management Technologies (IEMT), The Open University of Tanzania
+
+---
+
 ## License
 
 Institutional software property developed for the Institute of Education and Management Technologies (IEMT) at the Open University of Tanzania.

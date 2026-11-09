@@ -1,13 +1,10 @@
 <footer class="footer-admin mt-auto footer-light">
     <div class="container-xl px-4">
-        <div class="row">
-            <div class="col-md-6 small">Copyright {{ date('Y') }} &copy; Institute of Education and Management
-                Technologies (IEMT)</div>
-            <!--div class="col-md-6 text-md-end small">
-                &middot;
-                Developed By :
-                <a href="https://wolinet.com">WOLINET LTD</a>
-            </div> -->
+        <div class="row align-items-center">
+            <div class="col-md-6 small">Copyright {{ date('Y') }} &copy; Institute of Education and Management Technologies (IEMT)</div>
+            <div class="col-md-6 text-md-end small">
+                Author &amp; Lead Developer: <strong style="color: #013ba6;">Renatus Bernardo</strong>
+            </div>
         </div>
     </div>
 </footer>
