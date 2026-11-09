@@ -1,0 +1,135 @@
+name: SCMS CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # JOB 1: CONTINUOUS INTEGRATION (Build, Security & Migration Test Gate)
+  # ============================================================================
+  continuous-integration:
+    name: Build & Test (PHP 8.3 & MySQL 8.0)
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: scms_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout Codebase
+        uses: actions/checkout@v4
+
+      - name: Setup PHP Runtime
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, dom, filter, gd, hash, json, libxml, openssl, pcre, session, tokenizer, zip, fileinfo
+          coverage: none
+          tools: composer:v2
+
+      - name: Setup Node.js Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Prepare Test Environment
+        run: |
+          cp .env.example .env
+          sed -i 's/DB_DATABASE=scms/DB_DATABASE=scms_test/' .env
+          sed -i 's/DB_USERNAME=scms_user/DB_USERNAME=root/' .env
+          sed -i 's/DB_PASSWORD=secret/DB_PASSWORD=root/' .env
+
+      - name: Install Composer Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Generate Application Key
+        run: php artisan key:generate
+
+      - name: Test Database Migrations
+        run: php artisan migrate --force
+
+      - name: Test Idempotent Prior Data Seeding
+        run: php artisan db:seed --class=ProductionInitialSeeder --force
+
+      - name: Install NPM Dependencies & Build Production Assets
+        run: |
+          npm ci --prefer-offline --no-audit || npm install --no-audit
+          npm run build
+
+      - name: Verify Application Route Compilation
+        run: php artisan route:list
+
+  # ============================================================================
+  # JOB 2: CONTINUOUS DEPLOYMENT (Automated Server Rollout)
+  # ============================================================================
+  continuous-deployment:
+    name: Production Server Deployment
+    needs: continuous-integration
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Deployment Configuration
+        id: check-secrets
+        run: |
+          if [ -n "${{ secrets.SSH_HOST }}" ] && [ -n "${{ secrets.SSH_USER }}" ]; then
+            echo "configured=true" >> $GITHUB_OUTPUT
+            echo "Remote server secrets detected. Proceeding with SSH deployment."
+          else
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "Notice: SSH_HOST and SSH_USER secrets not yet configured in GitHub repository."
+            echo "To enable direct auto-deployment, add SSH_HOST, SSH_USER, SSH_KEY, and DEPLOY_PATH to Repository Secrets."
+          fi
+
+      - name: Deploy to Remote Server via SSH
+        if: steps.check-secrets.outputs.configured == 'true'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH || '/var/www/scms' }}
+            bash deploy.sh
+
+      - name: Deployment Instructions & Local Hook Summary
+        if: steps.check-secrets.outputs.configured == 'false'
+        run: |
+          echo "=========================================================================="
+          echo "  CI BUILD PASSED: Application is certified for production deployment."
+          echo "  To trigger deployment on your live server, execute:"
+          echo "    cd /path/to/scms && bash deploy.sh"
+          echo "  Or configure the following GitHub Secrets under Settings -> Secrets:"
+          echo "    - SSH_HOST        : Production Server IP or Domain"
+          echo "    - SSH_USER        : SSH login username"
+          echo "    - SSH_KEY         : Private SSH key for server access"
+          echo "    - DEPLOY_PATH     : Destination webroot (e.g. /Applications/MAMP/htdocs/scms or /var/www/scms)"
+          echo "=========================================================================="

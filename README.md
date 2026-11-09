@@ -102,12 +102,41 @@ npm run build
 php artisan storage:link
 ```
 
-### 6. Launch Application
+### 6. Automated Deployment & Baseline Data Seeding
+For production rollouts or automated server deployments, execute the included deployment script:
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+The deployment script coordinates:
+- Graceful maintenance mode activation (`php artisan down`).
+- Repository synchronization (`git reset --hard origin/main`).
+- Production dependency installation (`composer install --no-dev --optimize-autoloader`).
+- Safe database migration execution (`php artisan migrate --force`).
+- **Idempotent baseline prior data seeding** (`php artisan db:seed --class=ProductionInitialSeeder --force`).
+- Storage symlink verification (`php artisan storage:link`).
+- Cache optimization (`config:cache`, `route:cache`, `view:cache`).
+- Application reactivation (`php artisan up`).
+
+### 7. Launch Application
 - **MAMP Environment:** Open `http://localhost:8888/scms/public/` in your browser.
 - **Built-in CLI Server:** Alternatively, start the local development server:
   ```bash
   php artisan serve
   ```
+
+---
+
+## Continuous Integration & Continuous Deployment (CI/CD)
+
+The repository includes a GitHub Actions pipeline configured in `.github/workflows/ci-cd.yml`:
+1. **CI Pipeline Gate:** Automatically builds on PHP 8.3 & MySQL 8.0, tests database migrations, runs the idempotent `ProductionInitialSeeder`, and compiles frontend assets on every commit.
+2. **Automated CD Server Deployment:** Automatically runs `deploy.sh` on your production server when the following GitHub repository secrets are set:
+   - `SSH_HOST`: Target server hostname or IP address.
+   - `SSH_USER`: SSH login user (e.g. `ubuntu` or `deploy`).
+   - `SSH_KEY`: Private SSH deployment key.
+   - `DEPLOY_PATH`: Absolute path to project directory on server (e.g. `/var/www/scms`).
+
 
 ---
 
