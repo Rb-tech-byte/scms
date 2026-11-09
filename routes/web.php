@@ -58,17 +58,27 @@ use Codedge\Fpdf\Fpdf\Fpdf;
 // =========================================================================
 
 Route::get('/', function () {
-    //check system setting
-
-    $settings = SystemSettings::all();
-    if (empty ($settings)) {
-        $settingData = [
-            'system_name ' => 'OPEN UNIVERSITY ONLINE COURSE REGISTRATION',
-        ];
-        SystemSettings::create($settingData);
+    // Redirect authenticated users directly to their dashboard
+    if (Auth::check()) {
+        return redirect()->route('home');
     }
-    return redirect()
-        ->route('login');
+
+    // Ensure baseline system settings exist safely without hardcoded failures
+    try {
+        if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
+            SystemSettings::firstOrCreate(
+                ['id' => 1],
+                [
+                    'system_name' => 'Institute of Education and Management Technologies (IEMT)',
+                    'system_logo' => 'logo.png',
+                ]
+            );
+        }
+    } catch (\Throwable $e) {
+        // Continue gracefully if database is booting or running initial migration
+    }
+
+    return redirect()->route('login');
 });
 
 Route::get('/ViewInvoice/{id}', function ($id) {

@@ -75,20 +75,37 @@ trap 'cleanup_on_error $LINENO' ERR
 
 log "Starting SCMS Automated Deployment on branch [${BRANCH}]..."
 
-# 1. Resolve PHP and Composer binaries
-PHP_BIN="php"
-if [ -x "/Applications/MAMP/bin/php/php8.3.30/bin/php" ]; then
-    PHP_BIN="/Applications/MAMP/bin/php/php8.3.30/bin/php"
+# 1. Resolve PHP and Composer binaries dynamically (zero hardcoded paths)
+PHP_BIN=""
+for candidate in php8.3 php8.4 php8.5 php /usr/bin/php /usr/local/bin/php /Applications/MAMP/bin/php/php8.3.30/bin/php; do
+    if command -v "$candidate" >/dev/null 2>&1; then
+        PHP_BIN="$(command -v "$candidate")"
+        break
+    elif [ -x "$candidate" ]; then
+        PHP_BIN="$candidate"
+        break
+    fi
+done
+
+if [ -z "$PHP_BIN" ]; then
+    error "PHP runtime could not be located on this host. Please install PHP 8.3+."
+    exit 1
 fi
 
-COMPOSER_BIN="composer"
-if [ -x "/Applications/MAMP/bin/php/composer" ]; then
-    COMPOSER_BIN="${PHP_BIN} /Applications/MAMP/bin/php/composer"
-elif [ -f "./composer.phar" ]; then
+COMPOSER_BIN=""
+if [ -f "./composer.phar" ]; then
     COMPOSER_BIN="${PHP_BIN} ./composer.phar"
+elif command -v composer >/dev/null 2>&1; then
+    COMPOSER_BIN="$(command -v composer)"
+elif [ -x "/usr/local/bin/composer" ]; then
+    COMPOSER_BIN="/usr/local/bin/composer"
+elif [ -x "/Applications/MAMP/bin/php/composer" ]; then
+    COMPOSER_BIN="${PHP_BIN} /Applications/MAMP/bin/php/composer"
+else
+    COMPOSER_BIN="composer"
 fi
 
-log "Using PHP runtime: $(${PHP_BIN} -r 'echo PHP_VERSION;')"
+log "Using PHP runtime: $(${PHP_BIN} -r 'echo PHP_VERSION;') at [${PHP_BIN}]"
 
 # 2. Activate Maintenance Mode
 log "Activating maintenance mode..."
@@ -97,10 +114,14 @@ if ${PHP_BIN} artisan --version >/dev/null 2>&1; then
 fi
 
 # 3. Fetch latest codebase from Git repository
-log "Pulling latest changes from Git [origin/${BRANCH}]..."
-git fetch origin "${BRANCH}"
-git reset --hard "origin/${BRANCH}"
-success "Codebase synchronized with commit $(git rev-parse --short HEAD)."
+if [ -d ".git" ]; then
+    log "Pulling latest changes from Git [origin/${BRANCH}]..."
+    git fetch origin "${BRANCH}"
+    git reset --hard "origin/${BRANCH}"
+    success "Codebase synchronized with commit $(git rev-parse --short HEAD)."
+else
+    warn "Not a git repository directory; skipping git pull."
+fi
 
 # 4. Install & Optimize Composer Dependencies
 log "Installing production Composer dependencies..."

@@ -36,12 +36,13 @@ class CourseAssignmentController extends Controller
         $search = $request->get('search', '');
 
         if (auth()->user()->hasRole('tutor') || !auth()->user()->hasRole(['system-admin', 'branch-admin'])) {
-            $tutor_id = auth()->user()->tutor->id;
-            $this->data['variable'] = 'Tutor' . ' ' . Tutor::find($tutor_id)->name;
+            $tutor_id = auth()->user()->tutor?->id ?? 0;
+            $tutor = Tutor::find($tutor_id);
+            $this->data['variable'] = 'Tutor ' . ($tutor?->name ?? 'Tutor');
             $this->data['courseAssignments'] = CourseAssignment::where('tutor_id', $tutor_id)->get();
             return view('app.course_assignments.index', $this->data);
         } else {
-            $courseAssignments = empty($branch) ? CourseAssignment::latest()->get():CourseAssignment::where('branch_id',$branch->id)->latest()->get();
+            $courseAssignments = empty($branch) ? CourseAssignment::latest()->get() : CourseAssignment::where('branch_id', $branch->id ?? $branch)->latest()->get();
         }
 
 
@@ -109,16 +110,17 @@ class CourseAssignmentController extends Controller
         ]);
 
         /**
-         * @author developer006 <developer@socialsmarttech.com>
-         * SOLVE THE PROBLEM OF TIME OVERLAPPING WITH
-         * Eng. Ludovick F. Konyo | developer@socialsmarttech.com
+         * @author Renatus Bernardo <bernadorenatus32@gmail.com>
+         * Solve the problem of time overlapping and tutor scheduling
          */
 
-        //check if the tutor is already assigned to the course for the same date
+        // Check if the tutor is already assigned to the course for the same date
         $tutor_id = $request->input('tutor_id');
-        $tutor_name = Tutor::find($tutor_id)->name;
+        $tutor = Tutor::find($tutor_id);
+        $tutor_name = $tutor?->name ?? 'Tutor';
         $course_id = $request->input('course_id');
-        $course_title = Course::find($course_id)->title;
+        $course = Course::find($course_id);
+        $course_title = $course?->title ?? 'Course';
         $date = $request->input('date');
         $courseAssignment = CourseAssignment::where('tutor_id', $tutor_id)->where('course_id', $course_id)->where('date', $date)->first();
 
@@ -301,22 +303,28 @@ class CourseAssignmentController extends Controller
     public function getBranchCourseAssignment(Request $request)
     {
         $user = auth()->user();
+        $branch_id = null;
+        $applicant = null;
+
         if ($user->hasRole('tutor')) {
-            $branch_id = $user->tutor->branch_id;
+            $branch_id = $user->tutor?->branch_id;
         }
         if ($user->hasRole('student')) {
             $applicant = Applicant::where('user_id', $user->id)->first();
-            $branch_id = $applicant->branch_id;
+            $branch_id = $applicant?->branch_id;
         }
 
+        $branch = $branch_id ? Branch::find($branch_id) : Branch::first();
+        $branch_id = $branch?->id ?? 1;
+
         $this->data['title'] = 'Branch Timetable';
-        $this->data['variable'] = 'Branch' . ' ' . Branch::find($branch_id)->name;
+        $this->data['variable'] = 'Branch ' . ($branch?->name ?? 'General');
         if ($user->hasRole(['tutor', 'branch-admin'])) {
             $this->data['courseAssignments'] = CourseAssignment::where('branch_id', $branch_id)->get();
         }
         if ($user->hasRole('student')) {
             //get all courses enrolled by the student then get all the course assignments for the courses
-            $enrollments = Enrollment::where('applicant_id', $applicant->id)->get();
+            $enrollments = $applicant ? Enrollment::where('applicant_id', $applicant->id)->get() : collect();
 
             $course_ids = [];
             $venues = [];
@@ -324,10 +332,9 @@ class CourseAssignmentController extends Controller
                 $course_ids[] = $enrollment->course_id;
                 $venues[] = $enrollment->venue_id;
             }
-            $this->data['courseAssignments'] = CourseAssignment::whereIn('course_id', $course_ids)->whereIn('venue_id', $venues)->where('branch_id', $branch_id)->get();
-
-
-
+            $this->data['courseAssignments'] = (!empty($course_ids) && !empty($venues))
+                ? CourseAssignment::whereIn('course_id', $course_ids)->whereIn('venue_id', $venues)->where('branch_id', $branch_id)->get()
+                : collect();
         }
         return view('app.course_assignments.index', $this->data);
     }

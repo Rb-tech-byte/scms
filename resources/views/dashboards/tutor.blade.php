@@ -13,7 +13,7 @@
                         <div class="small text-light" id="dashboard_time">
                             <span class="fw-500 text-info" id="dashboard_day"></span>
                             <span id="full_date"></span>
-                            <span class="badge bg-warning">{{ Auth::user()->tutor->branch->name }}</span>
+                            <span class="badge bg-warning">{{ Auth::user()->tutor?->branch?->name ?? 'General' }}</span>
                         </div>
                     </div>
                 </div>

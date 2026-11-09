@@ -36,26 +36,24 @@ class AdminDashboard extends Controller
         $this->data['balances']=$balances = Invoice::all()->pluck('balance')->toArray();
         //sum up the balances
         $this->data['total_balances'] = array_sum($balances);
-        }else if(Auth::user()->hasRole('branch-admin')){
+        } else if (Auth::user()->hasRole('branch-admin')) {
             $user = Auth::user();
-            $branch = $user->tutor->branch;
-            $student = Applicant::where('branch_id',$branch->id);
-            // session(['branch'=>$branch]);
-        $this->data['courses'] = Course::all();
-        $this->data['invoices'] = !$student->get()->isEmpty()?Invoice::whereIn('applicant_id',$student->get(['id'])):[];
-        //collect all payment amounts
-        $this->data['payments'] = $payments = Payment::whereIn('applicant_id',$student->get(['id']))->pluck('amount')->toArray();
-        //sum up the payments
-        $this->data['total_payments'] = array_sum($payments);
+            $branch = $user->tutor?->branch ?? \App\Models\Branch::first();
+            $branchId = $branch?->id ?? session('user_branch_id', 1);
+            $student = Applicant::where('branch_id', $branchId);
 
-        //collect all invoices balances
-        $this->data['balances']=$balances = Invoice::whereIn('applicant_id',$student->get(['id']))->pluck('balance')->toArray();
-        //sum up the balances
-        $this->data['total_balances'] = array_sum($balances);
-        $this->data['students'] = $student->get();
-        $this->data['branch'] =$branch;
+            $this->data['courses'] = Course::all();
+            $studentIds = $student->pluck('id');
+            $this->data['invoices'] = $studentIds->isNotEmpty() ? Invoice::whereIn('applicant_id', $studentIds)->get() : collect();
+            $this->data['payments'] = $payments = Payment::whereIn('applicant_id', $studentIds)->pluck('amount')->toArray();
+            $this->data['total_payments'] = array_sum($payments);
 
-        }else{
+            $this->data['balances'] = $balances = Invoice::whereIn('applicant_id', $studentIds)->pluck('balance')->toArray();
+            $this->data['total_balances'] = array_sum($balances);
+            $this->data['students'] = $student->get();
+            $this->data['branch'] = $branch;
+
+        } else {
             return redirect('permission-denied');
         }
 

@@ -115,7 +115,7 @@ class User extends Authenticatable
     public function hasRole($role)
     {
         if (!empty($this->davinci_role_id)) {
-            $userRole = $this->role()->name;
+            $userRole = $this->role()?->name;
 
             if (is_array($role)) {
                 foreach ($role as $r) {

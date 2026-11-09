@@ -183,7 +183,8 @@ class TutorController extends Controller
             return redirect('permission-denied');
         }
         $this->data['title'] = 'New Upcomming Sessions';
-        $this->data['courseAssignments'] = auth()->user()->tutor->courseAssignments()->where('is_teached', '0')->get();
+        $tutor = auth()->user()->tutor;
+        $this->data['courseAssignments'] = $tutor ? $tutor->courseAssignments()->where('is_teached', '0')->get() : collect();
         return view(
             'app.course_assignments.index',$this->data
         );
@@ -195,7 +196,8 @@ class TutorController extends Controller
             return redirect('permission-denied');
         }
         $this->data['title'] = 'Completed Sessions';
-        $this->data['courseAssignments'] = auth()->user()->tutor->courseAssignments()->where('is_teached', '1')->get();
+        $tutor = auth()->user()->tutor;
+        $this->data['courseAssignments'] = $tutor ? $tutor->courseAssignments()->where('is_teached', '1')->get() : collect();
 
         return view(
             'app.course_assignments.index', $this->data
@@ -220,7 +222,7 @@ class TutorController extends Controller
             return view('app.tutors.edit', compact('tutor', 'branches', 'users', 'roles'));
         } else {
             //check if incoming id is the same as the tutor id
-            if (auth()->user()->tutor->id == $tutor->id) {
+            if (auth()->user()->tutor && auth()->user()->tutor->id == $tutor->id) {
                 $branches = Branch::pluck('name', 'id');
                 $users = User::pluck('name', 'id');
                 $roles = Role::get();

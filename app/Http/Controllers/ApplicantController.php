@@ -177,8 +177,8 @@ class ApplicantController extends Controller
             }
             $tutor = \App\Models\Tutor::where('user_id', auth()->user()->id)->first();
 
-            $venue = Venue::find($enrollmentData['venue_id']);
-            $validated['branch_id'] = $venue->branch_id;
+            $venue = !empty($enrollmentData['venue_id']) ? Venue::find($enrollmentData['venue_id']) : null;
+            $validated['branch_id'] = $venue?->branch_id ?? session('user_branch_id', 1);
             // if(auth()->user()->hasRole('tutor') && !empty($tutor)){
             //     $validated['branch_id'] = $tutor->branch_id;
             // }
