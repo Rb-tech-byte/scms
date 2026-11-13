@@ -342,10 +342,13 @@
             <div class="card-body">
                 @forelse($users as $staff)
                     <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+                        @php
+                            $staffAvatar = profileImageUrl($staff->image);
+                        @endphp
                         <div class="avatar avatar-lg me-3 bg-light rounded-circle overflow-hidden" style="width: 48px; height: 48px;">
-                            @if ($staff->image)
+                            @if ($staffAvatar)
                                 <img class="w-100 h-100 object-fit-cover"
-                                    src="{{ asset('storage/profiles/' . $staff->image) }}"
+                                    src="{{ $staffAvatar }}"
                                     alt="{{ $staff->name }}" />
                             @else
                                 <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-primary text-white fw-600">

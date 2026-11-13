@@ -213,9 +213,12 @@
                             <div class=" mb-4">
                                 <div class="d-flex align-items-center flex-shrink-0 me-3">
                                     <div class="avatar avatar-xl me-3 mb-3 bg-gray-200">
-                                        @if ($staff->image)
+                                        @php
+                                            $staffAvatar = profileImageUrl($staff->image);
+                                        @endphp
+                                        @if ($staffAvatar)
                                             <img class="avatar-img img-fluid"
-                                                src="{{ $staff->image ? url(\Storage::url('profile/' . $staff->image)) : '' }}"
+                                                src="{{ $staffAvatar }}"
                                                 alt=" {{ $staff->name }} " />
                                     </div>
                                 @else

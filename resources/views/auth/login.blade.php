@@ -7,7 +7,7 @@
     <h1 class="text-welcome-title" style="color: #013ba6; font-size: 20px; font-weight: 700; margin-bottom: 20px; text-align: center;">WELCOME TO SHORT COURSE MANAGEMENT SYSTEM (SCMS)</h1>
 @endsection
 @section('content')
-    <form method="POST" action="{{ route('login') }}">
+    <form id="login-form" method="POST" action="{{ route('login') }}">
         @csrf
         <div class="form-group">
             <label>{{ __('Email') }} <span class="login-danger">*</span></label>
@@ -87,11 +87,14 @@
                     var emailInput = document.getElementById('email');
                     var passwordInput = document.getElementById('password');
                     var autoSubmit = document.getElementById('quick-login-autosubmit');
+                    var loginForm = document.getElementById('login-form') || (emailInput ? emailInput.form : null);
                     if (emailInput && passwordInput) {
                         emailInput.value = email;
                         passwordInput.value = password;
-                        if ((!autoSubmit || autoSubmit.checked) && emailInput.form) {
-                            emailInput.form.submit();
+                        emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        passwordInput.dispatchEvent(new Event('input', { bubbles: true }));
+                        if ((!autoSubmit || autoSubmit.checked) && loginForm) {
+                            loginForm.submit();
                         }
                     }
                 }

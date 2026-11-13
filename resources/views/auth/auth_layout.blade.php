@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf@3/notyf.min.css">
     <link rel="stylesheet" href="{{ URL::to('assets/auth/plugins/bootstrap/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ URL::to('assets/auth/plugins/fontawesome/css/fontawesome.min.css') }}">
+    <link rel="stylesheet" href="{{ URL::to('assets/auth/plugins/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ URL::to('assets/auth/css/style.css') }}">
     <link rel="stylesheet" href="{{ URL::to('assets/auth/css/custom.css') }}">
 </head>

@@ -32,9 +32,12 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         {{-- Avatar / Image --}}
+                                        @php
+                                            $applicantAvatar = profileImageUrl(optional($applicant->user)->image);
+                                        @endphp
                                         <div class="avatar me-2">
-                                            @if (optional($applicant->user)->image)
-                                                <img src="{{ asset('storage/profiles/' . $applicant->user->image) }}"
+                                            @if ($applicantAvatar)
+                                                <img src="{{ $applicantAvatar }}"
                                                     alt="{{ $applicant->full_name }}" class="rounded-circle"
                                                     style="width: 40px; height: 40px; object-fit: cover;">
                                             @else

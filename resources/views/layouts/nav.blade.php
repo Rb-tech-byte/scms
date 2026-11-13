@@ -6,7 +6,7 @@
 
     <a class="btn btn-icon btn-transparent-dark order-1 order-lg-0 me-2 ms-lg-2 me-lg-0" id="sidebarToggle">
         @php
-        $logoSrc = ($setting && $setting->system_logo) ? url(\Storage::url($setting->system_logo)) : asset('mini.png');
+        $logoSrc = systemLogoUrl($setting->system_logo ?? null);
         echo '<img src="' . $logoSrc . '" alt="Logo" style="height: 38px; width: 38px; object-fit: contain;" />';
         @endphp
        </a>
@@ -39,12 +39,12 @@
             <a class="btn btn-icon btn-transparent-dark dropdown-toggle" id="navbarDropdownUserImage"
                 href="javascript:void(0);" role="button" data-bs-toggle="dropdown" aria-haspopup="true"
                 aria-expanded="false"><img class="img-fluid"
-                    src="{{ Auth::user()->image ? url(\Storage::url('profile/'. Auth::user()->image)) : asset('assets/assets/img/favicon.png') }}" /></a>
+                    src="{{ profileImageUrl(Auth::user()->image, asset('assets/assets/img/favicon.png')) }}" /></a>
             <div class="dropdown-menu dropdown-menu-end border-0 shadow animated--fade-in-up"
                 aria-labelledby="navbarDropdownUserImage">
                 <h6 class="dropdown-header d-flex align-items-center">
 
-                    <img class="dropdown-user-img" src="{{ Auth::user()->image ? url(\Storage::url('profile/'. Auth::user()->image)) : asset('assets/assets/img/favicon.png') }}" />
+                    <img class="dropdown-user-img" src="{{ profileImageUrl(Auth::user()->image, asset('assets/assets/img/favicon.png')) }}" />
 
                     <div class="dropdown-user-details">
                         <div class="dropdown-user-details-name">{{Auth::user()->name}}</div>

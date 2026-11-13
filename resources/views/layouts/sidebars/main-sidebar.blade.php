@@ -21,7 +21,7 @@
         $settings = \App\Models\Setting::first();
     @endphp
     <nav
-        class="sidenav {{ !empty($setting) && $settings->allow_dark_sidebar == 1 ? 'sidenav-dark' : 'sidenav-light' }}   shadow-right">
+        class="sidenav {{ !empty($settings) && $settings->allow_dark_sidebar == 1 ? 'sidenav-dark' : 'sidenav-light' }}   shadow-right">
         <div class="sidenav-menu">
             <div class="nav accordion" id="accordionSidenav">
                 <div class="sidenav-menu-heading d-sm-none">Account</div>

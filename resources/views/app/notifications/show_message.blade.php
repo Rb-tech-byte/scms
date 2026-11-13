@@ -29,8 +29,11 @@
         <a class="card card-icon lift lift-sm mb-4" href="{{route('message.show', sst($message->id))}}">
             <div class="row g-0">
                 <div class="col-auto card-icon-aside bg-primary">
-                    @if(!empty($user) && !empty($user->image))
-                        <img src="{{asset(url(\Storage::url('profile/'.$staff->image)))}}" alt="..." class="img-fluid rounded-circle" style="max-width:80px;" />
+                    @php
+                        $senderAvatar = !empty($user) ? profileImageUrl($user->image) : null;
+                    @endphp
+                    @if($senderAvatar)
+                        <img src="{{ $senderAvatar }}" alt="..." class="img-fluid rounded-circle" style="max-width:80px;" />
                     @else
                         <img src="{{asset('assets/assets/img/favicon.png')}}" alt="..." class="img-fluid rounded-circle" style="max-width:80px;" />
                     @endif

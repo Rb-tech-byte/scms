@@ -593,16 +593,61 @@ function decrypt_code($number)
     return $number;
 }
 
+/**
+ * Render a QR code PNG binary string using PHP GD when the Imagick extension is unavailable.
+ */
+function render_qr_png_with_gd(string $content, int $size = 1000, int $quietModules = 2): string
+{
+    $qr = \BaconQrCode\Encoder\Encoder::encode(
+        $content,
+        \BaconQrCode\Common\ErrorCorrectionLevel::L()
+    );
+    $matrix = $qr->getMatrix();
+    $matrixWidth = $matrix->getWidth();
+    $totalModules = $matrixWidth + ($quietModules * 2);
+    $moduleSize = max(1, (int) floor($size / $totalModules));
+    $canvasSize = $moduleSize * $totalModules;
+
+    $image = imagecreate($canvasSize, $canvasSize);
+    $white = imagecolorallocate($image, 255, 255, 255);
+    $black = imagecolorallocate($image, 0, 0, 0);
+    imagefilledrectangle($image, 0, 0, $canvasSize - 1, $canvasSize - 1, $white);
+
+    for ($y = 0; $y < $matrixWidth; $y++) {
+        for ($x = 0; $x < $matrixWidth; $x++) {
+            if ($matrix->get($x, $y) === 1) {
+                $px = ($x + $quietModules) * $moduleSize;
+                $py = ($y + $quietModules) * $moduleSize;
+                imagefilledrectangle($image, $px, $py, $px + $moduleSize - 1, $py + $moduleSize - 1, $black);
+            }
+        }
+    }
+
+    ob_start();
+    imagepng($image);
+    $png = ob_get_clean();
+    imagedestroy($image);
+
+    return $png !== false ? $png : '';
+}
+
 function qrcode($id, $format)
 {
-    $link = 'ViewInvoice';
     $code = url('/ViewInvoice/' . $id);
-    $qrCode = QrCode::size(1000)->format('png')->generate($code);
+    if (extension_loaded('imagick')) {
+        $qrCode = QrCode::size(1000)->format('png')->generate($code);
+    } elseif (extension_loaded('gd')) {
+        $qrCode = render_qr_png_with_gd($code, 1000);
+    } else {
+        $qrCode = QrCode::size(1000)->format('svg')->generate($code);
+    }
+
+    $dirPath = public_path('qrcodes');
+    File::ensureDirectoryExists($dirPath);
 
     // Save the QR code image to a file
-    $filePath = public_path('qrcodes/' . 'qrcode-'.$id . '.png');
+    $filePath = $dirPath . DIRECTORY_SEPARATOR . 'qrcode-' . $id . '.png';
     file_put_contents($filePath, $qrCode);
-
 
     if ($format == 'pdf') {
         $output = '<img src="' . $filePath . '">';
@@ -761,4 +806,38 @@ function resourceRoutesCopy($route){
     }, $resource);
 
     return in_array(true, $routes);
+}
+
+/**
+ * Resolve a user profile image URL if the file exists in public storage, or return fallback.
+ * Checks both `storage/profile/` and legacy `storage/profiles/` locations.
+ */
+function profileImageUrl(?string $image, ?string $fallback = null): ?string
+{
+    if ($image) {
+        $clean = ltrim($image, '/');
+        if (is_file(public_path('storage/profile/' . $clean))) {
+            return asset('storage/profile/' . $clean);
+        }
+        if (is_file(public_path('storage/profiles/' . $clean))) {
+            return asset('storage/profiles/' . $clean);
+        }
+    }
+
+    return $fallback;
+}
+
+/**
+ * Resolve the system logo URL if present in public storage, otherwise fallback to mini.png.
+ */
+function systemLogoUrl(?string $logo): string
+{
+    if ($logo) {
+        $clean = ltrim($logo, '/');
+        if (is_file(public_path('storage/' . $clean))) {
+            return asset('storage/' . $clean);
+        }
+    }
+
+    return asset('mini.png');
 }

@@ -9,8 +9,11 @@
             </li>
         @elseif ($result instanceof App\Models\Tutor)
             <li> <a href="{{ route('tutors.show', $result->id) }}">
-                    @if ($result->user->image)
-                        <img src="{{ url(\Storage::url('profile/' . $result->user->image)) }}" class="rounded-circle" alt="profile-image" height="20">
+                    @php
+                        $tutorAvatar = profileImageUrl(optional($result->user)->image);
+                    @endphp
+                    @if ($tutorAvatar)
+                        <img src="{{ $tutorAvatar }}" class="rounded-circle" alt="profile-image" height="20">
                     @else
                         <img class="rounded-circle" alt="profile-image" src="{{ asset('mini.png') }}" height="20" />
                     @endif

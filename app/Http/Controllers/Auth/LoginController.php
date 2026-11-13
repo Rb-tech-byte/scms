@@ -156,17 +156,35 @@ class LoginController extends Controller
             ->log('User signed in');
 
         $password = $request->password;
+        $rules = app()->environment('local')
+            ? [Password::min(8)->mixedCase()->letters()->numbers()->symbols()]
+            : [Password::min(8)->uncompromised()->mixedCase()->letters()->numbers()->symbols()];
+
         $validator = Validator::make(['password' => $password], [
-            'password' => [
-                Password::min(8)->uncompromised()->mixedCase()->letters()->numbers()->symbols(),
-            ],
+            'password' => $rules,
         ]);
 
-        if ($validator->fails() || $user->isPasswordExpired() || $user->force_password_reset) {
+        $devEmails = [
+            'admin@scms.out.co.tz',
+            'branch@scms.out.co.tz',
+            'student@scms.out.co.tz',
+            'director@scms.out.co.tz',
+            'marketing@scms.out.co.tz',
+            'tutor@scms.out.co.tz',
+        ];
+        $isLocalDevQuickUser = app()->environment('local') && in_array($user->email, $devEmails, true);
+
+        if ($validator->fails() || (!$isLocalDevQuickUser && ($user->isPasswordExpired() || $user->force_password_reset))) {
             $user->force_password_reset = true;
             $user->save();
 
             return redirect()->route('password.force_reset');
+        }
+
+        if ($isLocalDevQuickUser && ($user->force_password_reset || $user->isPasswordExpired())) {
+            $user->force_password_reset = false;
+            $user->password_changed_at = now();
+            $user->save();
         }
 
         return redirect()->intended($this->redirectPath());

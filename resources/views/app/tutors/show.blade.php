@@ -20,8 +20,11 @@
         <div class="col-xl-4 col-lg-5">
             <div class="card text-center">
                 <div class="card-body">
-                    @if ($tutor->user->image)
-                        <img src="{{ url(\Storage::url('profile/' . $tutor->user->image)) }}" class="rounded-circle"
+                    @php
+                        $tutorAvatar = profileImageUrl(optional($tutor->user)->image);
+                    @endphp
+                    @if ($tutorAvatar)
+                        <img src="{{ $tutorAvatar }}" class="rounded-circle"
                             alt="profile-image">
                     @else
                         <img src="{{ asset('mini.png') }}" class="rounded-circle avatar-lg img-thumbnail" alt="profile-image">
