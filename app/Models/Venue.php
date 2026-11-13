@@ -10,6 +10,7 @@ class Venue extends Model
 {
     use HasFactory;
     use Searchable;
+    use \App\Traits\BranchScoped;
 
     protected $fillable = ['name', 'branch_id'];
 

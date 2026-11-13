@@ -28,18 +28,18 @@ class CheckBranchAccess
             return $next($request);
         }
 
-        // Branch admin and tutors can only access their branch data
-        if ($user->hasRole(['branch-admin', 'tutor'])) {
-            // Get user's branch
+        // All staff (non-system-admin) are branch-scoped
+        if ($user->user_type === 'staff') {
             $userBranch = $this->getUserBranch($user);
-            
+
             if (!$userBranch) {
-                abort(403, 'You are not assigned to any branch.');
+                return redirect()->route('no-branch');
             }
 
             // Store branch in session for easy access
             session(['user_branch_id' => $userBranch->id]);
             session(['user_branch' => $userBranch]);
+            session(['branch' => $userBranch]);
 
             return $next($request);
         }
@@ -47,6 +47,7 @@ class CheckBranchAccess
         // Students can only access their own data
         if ($user->hasRole('student')) {
             session(['user_branch_id' => null]);
+            session(['branch' => null]);
             return $next($request);
         }
 
@@ -58,22 +59,10 @@ class CheckBranchAccess
      */
     private function getUserBranch($user)
     {
-        // Check if user has tutor record
-        if ($user->tutor) {
-            return $user->tutor->branch;
+        if (empty($user->branch_id)) {
+            return null;
         }
 
-        // Check if user has applicant record
-        $applicant = $user->applicants()->first();
-        if ($applicant) {
-            return $applicant->branch;
-        }
-
-        // Check if user has branch_id directly
-        if (isset($user->branch_id)) {
-            return \App\Models\Branch::find($user->branch_id);
-        }
-
-        return null;
+        return \App\Models\Branch::find($user->branch_id);
     }
 }

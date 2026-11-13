@@ -88,6 +88,7 @@
                     ]) !!}
                     @endcheckBetween
 
+                    @check('list-invoices')
                     <div class="sidenav-menu-heading">SCHEDULES & REMINDERS</div>
                     <a class="nav-link" href="{{ url('payment-schedules') }}">
                         <div class="nav-link-icon"><i class="fas fa-calendar-alt"></i></div>
@@ -97,6 +98,7 @@
                         <div class="nav-link-icon"><i class="fas fa-bell"></i></div>
                         Due Reminders
                     </a>
+                    @endcheck
 
                     @checkBetween('list-tutors','list-courseassignments','view-courseassignments')
                     <div class="sidenav-menu-heading">ACADEMIC & SCHEDULES</div>
@@ -117,6 +119,7 @@
                     ]) !!}
                     @endcheck
 
+                    @checkBetween('issue-certificate','clear-applicant','clear-payments')
                     <div class="sidenav-menu-heading">CERTIFICATES</div>
                     <a class="nav-link" href="{{ url('certificates') }}">
                         <div class="nav-link-icon"><i class="fas fa-award"></i></div>
@@ -126,7 +129,9 @@
                         <div class="nav-link-icon"><i class="fas fa-qrcode"></i></div>
                         Verify Certificate
                     </a>
+                    @endcheckBetween
 
+                    @check('list-courseassignments')
                     <div class="sidenav-menu-heading">ATTENDANCE</div>
                     <a class="nav-link" href="{{ url('attendance') }}">
                         <div class="nav-link-icon"><i class="fas fa-user-check"></i></div>
@@ -136,6 +141,7 @@
                         <div class="nav-link-icon"><i class="fas fa-file-export"></i></div>
                         Attendance Export
                     </a>
+                    @endcheck
 
                     @if(auth()->user()->hasRole('tutor') )
                     <div class="sidenav-menu-heading">SCHEDULES</div>
@@ -174,6 +180,7 @@
                     </a>
                     @endcheck
 
+                    @check('view-notifications')
                     <div class="sidenav-menu-heading">NOTIFICATIONS</div>
                     <a class="nav-link" href="{{ url('notifications') }}">
                         <div class="nav-link-icon"><i class="fas fa-bell"></i></div>
@@ -183,6 +190,7 @@
                         <div class="nav-link-icon"><i class="fas fa-envelope-open-text"></i></div>
                         Templates
                     </a>
+                    @endcheck
                     @check('Access management')
                     <a class="nav-link {{ $role_routes || $user_routes ||$permission_routes || $perm_route ? 'active' : 'collapsed' }}"
                         href="javascript:void(0);" data-bs-toggle="collapse" data-bs-target="#accessComponents"

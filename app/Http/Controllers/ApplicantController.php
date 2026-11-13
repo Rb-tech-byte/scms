@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
 use App\Models\Role;
 use App\Traits\SocialSmartTechConstants;
+use App\Services\PermissionService;
 
 class ApplicantController extends Controller
 {
@@ -27,8 +28,8 @@ class ApplicantController extends Controller
     public function index(Request $request)
     {
 
-        if (!$this->hasPermission('List applicants')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('List applicants')) {
+            abort(403, 'Unauthorized');
         }
 
         $search = $request->get('search', '');
@@ -43,8 +44,8 @@ class ApplicantController extends Controller
      */
     public function create(Request $request)
     {
-        if (!$this->hasPermission('Register applicants')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('Register applicants')) {
+            abort(403, 'Unauthorized');
         }
 
         $countries = Country::pluck('name', 'id');
@@ -62,8 +63,8 @@ class ApplicantController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        if (!$this->hasPermission('Register applicants')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('Register applicants')) {
+            abort(403, 'Unauthorized');
         }
 
         $settings = \App\Models\Setting::first();
@@ -395,8 +396,8 @@ class ApplicantController extends Controller
      */
     public function show(Request $request, Applicant $applicant)
     {
-        if (!$this->hasPermission('View applicants')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('View applicants')) {
+            abort(403, 'Unauthorized');
         }
 
         return view('app.applicants.show', compact('applicant'));
@@ -407,8 +408,8 @@ class ApplicantController extends Controller
      */
     public function edit(Request $request, Applicant $applicant)
     {
-        if (!$this->hasPermission('Update applicants')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('Update applicants')) {
+            abort(403, 'Unauthorized');
         }
 
         $countries = Country::pluck('name', 'id');
@@ -424,8 +425,8 @@ class ApplicantController extends Controller
         Request $request,
         Applicant $applicant
     ): RedirectResponse {
-        if (!$this->hasPermission('Update applicants')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('Update applicants')) {
+            abort(403, 'Unauthorized');
         }
 
         $validated = $request->validate([
@@ -463,12 +464,15 @@ class ApplicantController extends Controller
             }
             $safeExt = $extension === 'jpeg' ? 'jpg' : $extension;
             $filename = time() . '_' . \Illuminate\Support\Str::random(10) . '.' . $safeExt;
-            $manager = new \Intervention\Image\ImageManager(['driver' => extension_loaded('imagick') ? 'imagick' : 'gd']);
-            $image_resize = $manager->make($image->getRealPath());
-            $image_resize->resize(null, 200, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $image_resize->encode($safeExt, 90);
+            $driverClass = extension_loaded('imagick')
+                ? \Intervention\Image\Drivers\Imagick\Driver::class
+                : \Intervention\Image\Drivers\Gd\Driver::class;
+            $manager = \Intervention\Image\ImageManager::usingDriver($driverClass);
+            $image_resize = $manager->decodePath($image->getRealPath());
+            $image_resize->scale(height: 200);
+            $encoded = $safeExt === 'png'
+                ? $image_resize->encodeUsingFormat(\Intervention\Image\Format::PNG)
+                : $image_resize->encodeUsingFormat(\Intervention\Image\Format::JPEG, quality: 90);
             $targetDir = storage_path('app/public/profiles');
             if (!file_exists($targetDir)) {
                 @mkdir($targetDir, 0755, true);
@@ -476,7 +480,7 @@ class ApplicantController extends Controller
             if ($applicant->user && $applicant->user->image) {
                 Storage::delete('public/profiles/' . $applicant->user->image);
             }
-            $image_resize->save($targetDir . '/' . $filename);
+            $encoded->save($targetDir . '/' . $filename);
 
             $applicant->user->image = $filename;
             $applicant->user->save();
@@ -494,8 +498,8 @@ class ApplicantController extends Controller
         Request $request,
         Applicant $applicant
     ) {
-        if (!$this->hasPermission('Delete applicants')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('Delete applicants')) {
+            abort(403, 'Unauthorized');
         }
 
         $applicant->delete();

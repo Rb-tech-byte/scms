@@ -22,11 +22,14 @@
                             <div class="col-lg-6">
                                 <div class="text-center mt-4">
                                     @yield('image')
-                                    <p class="lead"> @yield('message') </p>
-                                    <button class="btn btn-primary text-arrow-icon"  onclick="goBack()">
-                                        <i class="ms-0 me-1" data-feather="arrow-left"></i>
-                                        Go back
-                                    </button>
+                                    <div class="lead">@yield('message')</div>
+                                    <div class="mt-3">
+                                        <button class="btn btn-primary text-arrow-icon" onclick="goBack()">
+                                            <i class="ms-0 me-1" data-feather="arrow-left"></i>
+                                            Go back
+                                        </button>
+                                        @yield('actions')
+                                    </div>
                                 </div>
                             </div>
                         </div>

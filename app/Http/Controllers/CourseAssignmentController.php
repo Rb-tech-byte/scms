@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use App\Models\CourseAssignment;
 use Illuminate\Http\RedirectResponse;
 use App\Traits\SocialSmartTechConstants;
+use App\Services\PermissionService;
 
 class CourseAssignmentController extends Controller
 {
@@ -108,6 +109,22 @@ class CourseAssignmentController extends Controller
             ],
             'active' => ['required', 'boolean'],
         ]);
+
+        if (!PermissionService::isSystemAdmin()) {
+            $branchId = session('user_branch_id');
+            if (!$branchId) {
+                abort(403, 'Unauthorized');
+            }
+
+            $validated['branch_id'] = $branchId;
+
+            if (!Tutor::where('id', $validated['tutor_id'])->where('branch_id', $branchId)->exists()) {
+                abort(403, 'Unauthorized');
+            }
+            if (!Venue::where('id', $validated['venue_id'])->where('branch_id', $branchId)->exists()) {
+                abort(403, 'Unauthorized');
+            }
+        }
 
         /**
          * @author Renatus Bernardo <bernadorenatus32@gmail.com>
@@ -255,6 +272,22 @@ class CourseAssignmentController extends Controller
             'end_time' => ['required', 'date_format:H:i:s'],
             'active' => ['required', 'boolean'],
         ]);
+
+        if (!PermissionService::isSystemAdmin()) {
+            $branchId = session('user_branch_id');
+            if (!$branchId) {
+                abort(403, 'Unauthorized');
+            }
+
+            $validated['branch_id'] = $branchId;
+
+            if (!Tutor::where('id', $validated['tutor_id'])->where('branch_id', $branchId)->exists()) {
+                abort(403, 'Unauthorized');
+            }
+            if (!Venue::where('id', $validated['venue_id'])->where('branch_id', $branchId)->exists()) {
+                abort(403, 'Unauthorized');
+            }
+        }
 
         $courseAssignment->update($validated);
 

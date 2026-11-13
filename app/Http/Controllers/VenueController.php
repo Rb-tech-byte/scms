@@ -8,14 +8,15 @@ use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Traits\SocialSmartTechConstants;
+use App\Services\PermissionService;
 
 class VenueController extends Controller
 {
     use SocialSmartTechConstants;
     public function index(Request $request)
     {
-        if (!$this->hasPermission('List venues')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('List venues')) {
+            abort(403, 'Unauthorized');
         }
 
         $search = $request->get('search', '');
@@ -33,11 +34,11 @@ class VenueController extends Controller
      */
     public function create(Request $request)
     {
-        if (!$this->hasPermission('Add venues')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canCreate('Add venues')) {
+            abort(403, 'Unauthorized');
         }
 
-        $branches = Branch::pluck('name', 'id');
+        $branches = Branch::whereIn('id', PermissionService::getAccessibleBranchIds())->pluck('name', 'id');
 
         return view('app.venues.create', compact('branches'));
     }
@@ -47,14 +48,20 @@ class VenueController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if (!$this->hasPermission('Add venues')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canCreate('Add venues')) {
+            abort(403, 'Unauthorized');
         }
 
         $validated = $request->validate([
             'name' => ['required', 'max:255', 'string'],
             'branch_id' => ['required', 'exists:branches,id'],
         ]);
+        
+        // Force branch_id for non-system admins
+        if (!PermissionService::isSystemAdmin()) {
+            $validated['branch_id'] = session('user_branch_id');
+        }
+        
         $validated['name'] =  ucfirst(strtolower($validated['name']));
 
         Venue::create($validated);
@@ -69,8 +76,8 @@ class VenueController extends Controller
      */
     public function show(Request $request, Venue $venue)
     {
-        if (!$this->hasPermission('View venues')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canView('View venues', $venue)) {
+            abort(403, 'Unauthorized');
         }
 
         return view('app.venues.show', compact('venue'));
@@ -81,11 +88,11 @@ class VenueController extends Controller
      */
     public function edit(Request $request, Venue $venue)
     {
-        if (!$this->hasPermission('Update venues')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canUpdate('Update venues', $venue)) {
+            abort(403, 'Unauthorized');
         }
 
-        $branches = Branch::pluck('name', 'id');
+        $branches = Branch::whereIn('id', PermissionService::getAccessibleBranchIds())->pluck('name', 'id');
 
         return view('app.venues.edit', compact('venue', 'branches'));
     }
@@ -95,14 +102,20 @@ class VenueController extends Controller
      */
     public function update(Request $request, Venue $venue): RedirectResponse
     {
-        if (!$this->hasPermission('Update venues')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canUpdate('Update venues', $venue)) {
+            abort(403, 'Unauthorized');
         }
 
         $validated = $request->validate([
             'name' => ['required', 'max:255', 'string'],
             'branch_id' => ['required', 'exists:branches,id'],
         ]);
+        
+        // Force branch_id for non-system admins
+        if (!PermissionService::isSystemAdmin()) {
+            $validated['branch_id'] = session('user_branch_id');
+        }
+        
         $venue->update($validated);
 
         return redirect()
@@ -115,8 +128,8 @@ class VenueController extends Controller
      */
     public function destroy(Request $request, Venue $venue)
     {
-        if (!$this->hasPermission('Delete venues')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canDelete('Delete venues', $venue)) {
+            abort(403, 'Unauthorized');
         }
 
         $venue->delete();

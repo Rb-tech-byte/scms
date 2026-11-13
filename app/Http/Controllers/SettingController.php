@@ -183,13 +183,18 @@ class SettingController extends Controller
             }
             $safeExt = $extension === 'jpeg' ? 'jpg' : $extension;
             $filename = 'logo_' . time() . '_' . \Illuminate\Support\Str::random(8) . '.' . $safeExt;
-            $manager = new \Intervention\Image\ImageManager(['driver' => extension_loaded('imagick') ? 'imagick' : 'gd']);
-            $image_resize = $manager->make($image->getRealPath());
-            $image_resize->resize(null, 32, function ($constraint) {
-                $constraint->aspectRatio();
-            });
-            $image_resize->encode($safeExt, 90);
-            $image_resize->save(storage_path('app/public/' . $filename));
+            $driverClass = extension_loaded('imagick')
+                ? \Intervention\Image\Drivers\Imagick\Driver::class
+                : \Intervention\Image\Drivers\Gd\Driver::class;
+            $manager = \Intervention\Image\ImageManager::usingDriver($driverClass);
+            $image_resize = $manager->decodePath($image->getRealPath());
+            $image_resize->scale(height: 32);
+            $encoded = match ($safeExt) {
+                'png' => $image_resize->encodeUsingFormat(\Intervention\Image\Format::PNG),
+                'webp' => $image_resize->encodeUsingFormat(\Intervention\Image\Format::WEBP, quality: 90),
+                default => $image_resize->encodeUsingFormat(\Intervention\Image\Format::JPEG, quality: 90),
+            };
+            $encoded->save(storage_path('app/public/' . $filename));
             if ($setting->system_logo) {
                 if (file_exists(storage_path('app/public/' . $setting->system_logo))) {
                     @unlink(storage_path('app/public/' . $setting->system_logo));

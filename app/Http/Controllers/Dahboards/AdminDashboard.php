@@ -10,6 +10,7 @@ use App\Models\Applicant;
 use App\Models\Course;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Branch;
 use Illuminate\Support\Facades\Auth;
 
 class AdminDashboard extends Controller
@@ -18,7 +19,7 @@ class AdminDashboard extends Controller
 
     public function __construct()
     {
-        $this->middleware(["auth","admin"]);
+        $this->middleware(["auth","branch.access"]);
     }
 
     public function index(): View
@@ -38,17 +39,21 @@ class AdminDashboard extends Controller
         $this->data['total_balances'] = array_sum($balances);
         } else if (Auth::user()->hasRole('branch-admin')) {
             $user = Auth::user();
-            $branch = $user->tutor?->branch ?? \App\Models\Branch::first();
-            $branchId = $branch?->id ?? session('user_branch_id', 1);
-            $student = Applicant::where('branch_id', $branchId);
+            $branchId = session('user_branch_id') ?: $user->branch_id;
+            $branch = $branchId ? Branch::find($branchId) : null;
+            if (!$branch) {
+                abort(403, 'You are not assigned to any branch.');
+            }
+
+            $student = Applicant::where('branch_id', $branch->id);
 
             $this->data['courses'] = Course::all();
             $studentIds = $student->pluck('id');
             $this->data['invoices'] = $studentIds->isNotEmpty() ? Invoice::whereIn('applicant_id', $studentIds)->get() : collect();
-            $this->data['payments'] = $payments = Payment::whereIn('applicant_id', $studentIds)->pluck('amount')->toArray();
+            $this->data['payments'] = $payments = $studentIds->isNotEmpty() ? Payment::whereIn('applicant_id', $studentIds)->pluck('amount')->toArray() : [];
             $this->data['total_payments'] = array_sum($payments);
 
-            $this->data['balances'] = $balances = Invoice::whereIn('applicant_id', $studentIds)->pluck('balance')->toArray();
+            $this->data['balances'] = $balances = $studentIds->isNotEmpty() ? Invoice::whereIn('applicant_id', $studentIds)->pluck('balance')->toArray() : [];
             $this->data['total_balances'] = array_sum($balances);
             $this->data['students'] = $student->get();
             $this->data['branch'] = $branch;

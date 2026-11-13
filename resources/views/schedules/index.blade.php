@@ -11,13 +11,17 @@
             </h1>
             <p class="text-muted mb-0">Manage installment payment schedules for invoices</p>
         </div>
+        @if(\App\Services\PermissionService::canCreate('add-invoices'))
         <a href="{{ route('payment-schedules.create') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i> Generate Schedule
         </a>
+        @endif
     </div>
 
     {{-- Statistics Cards --}}
     <div class="row mb-4">
+        {{-- ... (statistics cards remain unchanged, simplified for brevity in replacement) ... --}}
+        {{-- I cannot simplify for brevity if I want to keep context. I will target specific blocks instead. --}}
         <div class="col-xl-3 col-md-6 mb-3">
             <div class="card border-left-primary shadow h-100 py-2">
                 <div class="card-body">
@@ -225,20 +229,24 @@
                                 <td>
                                     <div class="btn-group btn-group-sm" role="group">
                                         @if($schedule->status === 'pending' || $schedule->status === 'overdue')
+                                            @if(\App\Services\PermissionService::canUpdate('update-invoices', $schedule))
                                             <form action="{{ route('payment-schedules.mark-sent', $schedule) }}" method="POST" class="d-inline">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-info" title="Mark as Sent">
                                                     <i class="fas fa-paper-plane"></i>
                                                 </button>
                                             </form>
+                                            @endif
                                         @endif
                                         
                                         @if($schedule->status !== 'paid' && $schedule->status !== 'cancelled')
+                                            @if(\App\Services\PermissionService::canUpdate('update-invoices', $schedule))
                                             <button type="button" class="btn btn-sm btn-danger" 
                                                     onclick="cancelSchedule({{ $schedule->id }})" 
                                                     title="Cancel">
                                                 <i class="fas fa-times"></i>
                                             </button>
+                                            @endif
                                         @endif
                                     </div>
                                 </td>

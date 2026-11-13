@@ -24,6 +24,20 @@
 
 @section('content')
 
+    @if(!empty($reason))
+        <div class="container-xl px-4 mt-n10">
+            <div class="row">
+                <div class="col-lg-8 col-xl-6">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            {{ $reason }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
 
     @push('js')
         <script>

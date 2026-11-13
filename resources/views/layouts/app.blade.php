@@ -13,6 +13,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
     <link href="{{ asset('assets/css/styles.css') }}" rel="stylesheet" />
+    <link href="{{ asset('assets/css/custom-brand.css') }}" rel="stylesheet" />
     <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('mini.png') }}">
     <link rel="shortcut icon" href="{{ URL::to('mini.png') }}">
     <link rel="icon" type="image/icon" href="{{ asset('mini.png') }}" />
@@ -118,29 +119,8 @@
     @include('layouts.nav')
 
     <div id="layoutSidenav">
-        {{-- @if (auth()->user()->hasRole('system-admin') && auth()->user()->user_type == 'staff')
-        @include('layouts.sidebars.system-admin')
-        @endif
-        @if (auth()->user()->hasRole('admin') && auth()->user()->user_type == 'staff')
-        @include('layouts.sidebars.admin')
-        @endif
-        @if (auth()->user()->hasRole('tutor') && auth()->user()->user_type == 'staff')
-        @include('layouts.sidebars.tutor')
-        @endif
-        @if (auth()->user()->hasRole('student') && auth()->user()->user_type == 'student')
-        @include('layouts.sidebars.student')
-        @endif --}}
-        @php
-            $roles = ['system-admin', 'branch-admin', 'tutor', 'student'];
-            $user = auth()->user();
-        @endphp
-
-        {{-- @foreach ($roles as $role)
-            @if ($user->hasRole($role) && $user->user_type == ($role == 'student' ? 'student' : 'staff'))
-                @include('layouts.sidebars.' . $role)
-            @endif
-        @endforeach --}}
         @include('layouts.sidebars.main-sidebar')
+
 
 
         <div id="layoutSidenav_content">

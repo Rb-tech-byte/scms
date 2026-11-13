@@ -25,8 +25,6 @@ class HomeController extends Controller
 
 
         $user = auth()->user();
-        $branch = $user->tutor?->branch;
-        session(['branch'=>$branch]);
         if ($user->hasRole('system-admin') || $user->hasRole('branch-admin')) {
             return $this->adminDashboard();
         } elseif ($user->hasRole('tutor')) {
@@ -44,7 +42,7 @@ class HomeController extends Controller
     public function adminDashboard()
     {
         if (!$this->hasPermission('view-dashboard')) {
-            return redirect('permission-denied');
+            return $this->guestDashboard();
         }
         $dashboard = new \App\Http\Controllers\Dahboards\AdminDashboard();
         return $dashboard->index();

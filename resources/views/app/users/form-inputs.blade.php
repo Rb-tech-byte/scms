@@ -61,4 +61,16 @@
         @endforeach
     </div>
 
+    @if (auth()->user()->hasRole('system-admin') && isset($branches))
+        <x-inputs.group class="col-sm-12 mt-3 col-lg-6">
+            <x-inputs.select name="branch_id" label="Branch">
+                @php $selected = old('branch_id', ($editing ? $user->branch_id : '')) @endphp
+                <option value="" {{ empty($selected) ? 'selected' : '' }}>No branch</option>
+                @foreach ($branches as $value => $label)
+                    <option value="{{ $value }}" {{ (string) $selected === (string) $value ? 'selected' : '' }}>{{ $label }}</option>
+                @endforeach
+            </x-inputs.select>
+        </x-inputs.group>
+    @endif
+
 </div>

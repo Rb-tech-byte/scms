@@ -16,8 +16,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Bind Intervention ImageManager to container 'image' to resolve compatibility with Laravel 13
         $this->app->singleton('image', function () {
-            $driver = extension_loaded('imagick') ? 'imagick' : 'gd';
-            return new \Intervention\Image\ImageManager(['driver' => $driver]);
+            $driver = extension_loaded('imagick')
+                ? \Intervention\Image\Drivers\Imagick\Driver::class
+                : \Intervention\Image\Drivers\Gd\Driver::class;
+            return \Intervention\Image\ImageManager::usingDriver($driver);
         });
     }
 
