@@ -48,5 +48,43 @@
         <div class="form-group">
             <button class="btn btn-primary btn-block" type="submit">{{ __('Login') }}</button>
         </div>
+        @if (app()->environment('local'))
+            <div class="mt-3 p-2 border rounded bg-white">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <small class="text-muted font-weight-bold">Dev Quick Login (Local Only)</small>
+                    <label class="mb-0 small text-muted" style="cursor: pointer;">
+                        <input type="checkbox" id="quick-login-autosubmit" checked> Auto-submit
+                    </label>
+                </div>
+                <div class="d-flex flex-column" style="gap: 6px;">
+                    <button type="button" class="btn btn-outline-primary btn-sm btn-block text-left"
+                        onclick="quickLogin('admin@scms.out.co.tz', 'Password123456789@')">
+                        <i class="fas fa-user-shield mr-1"></i> Administrator <small class="text-muted">(admin@scms.out.co.tz)</small>
+                    </button>
+                    <button type="button" class="btn btn-outline-success btn-sm btn-block text-left"
+                        onclick="quickLogin('branch@scms.out.co.tz', 'Password123456789@')">
+                        <i class="fas fa-building mr-1"></i> Branch Manager <small class="text-muted">(branch@scms.out.co.tz)</small>
+                    </button>
+                    <button type="button" class="btn btn-outline-info btn-sm btn-block text-left"
+                        onclick="quickLogin('student@scms.out.co.tz', 'Password123456789@')">
+                        <i class="fas fa-user-graduate mr-1"></i> Student <small class="text-muted">(student@scms.out.co.tz)</small>
+                    </button>
+                </div>
+            </div>
+            <script>
+                function quickLogin(email, password) {
+                    var emailInput = document.getElementById('email');
+                    var passwordInput = document.getElementById('password');
+                    var autoSubmit = document.getElementById('quick-login-autosubmit');
+                    if (emailInput && passwordInput) {
+                        emailInput.value = email;
+                        passwordInput.value = password;
+                        if ((!autoSubmit || autoSubmit.checked) && emailInput.form) {
+                            emailInput.form.submit();
+                        }
+                    }
+                }
+            </script>
+        @endif
     </form>
 @endsection

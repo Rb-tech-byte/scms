@@ -1,6 +1,9 @@
 <?php
-use Intervention\Image\Facades\Image;
+use Intervention\Image\Drivers\Gd\Driver as GdDriver;
+use Intervention\Image\Format;
+use Intervention\Image\ImageManager;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\File;
 
 function setActive($path, $active = 'active')
 {
@@ -302,60 +305,37 @@ function trimValues(array $data): array
 }
 
 
-// function imageEngine(array|\Illuminate\Http\UploadedFile|null $image, array $validated, float $width=null , float $height=null): array
-// {
-//     $extension = $image->getClientOriginalExtension();
-//     $filename = time() . '.' . $extension;
-//     if ($extension != "svg") {
-//         $image_resize = Image::make($image->getRealPath());
-//         if ($height == null) {
-//             $image_resize->resize($width, null, function ($constraint) {
-//                 $constraint->aspectRatio();
-//             });
-//         }elseif($width == null){
-//             $image_resize->resize(null, $height, function ($constraint) {
-//                 $constraint->aspectRatio();
-//             });
-//         }
-//         else {
-//             $image_resize->resize($width, $height);
-//         }
-//         $image_resize->encode($extension, 100);
-//         $image_resize->save(storage_path('app/public/' . $filename));
-//     } else {
-//         $image->storeAs('public', $filename);
-//     }
-//     $validated['image'] = $filename;
-//     return $validated;
-// }
-
-function imageEngine($image, $filename = null, $width = null, $height = null,$path=null)
+function imageEngine($image, $filename = null, $width = null, $height = null, $path = null)
 {
+    // Check if the server supports JPEG
+    $supportsJpeg = function_exists('imagejpeg');
+    $extension = $supportsJpeg ? 'jpg' : 'png';
 
-    $filename = $filename ? $filename : time() . '.' . 'jpg';
+    // Set default filename if not provided, ensuring correct extension
+    if (!$filename) {
+        $filename = time() . '.' . $extension;
+    } else {
+        // If filename is provided but we can't support JPG, verify/change extension
+        $fileInfo = pathinfo($filename);
+        if (!$supportsJpeg && isset($fileInfo['extension']) && strtolower($fileInfo['extension']) === 'jpg') {
+            $filename = $fileInfo['filename'] . '.png';
+        }
+    }
 
-    $image_resize = Image::make($image->getRealPath());
+    $image_resize = ImageManager::usingDriver(GdDriver::class)->decodePath($image->getRealPath());
 
     if ($width == null && $height == null) {
-        if ($image->width() > $image->height()) {
-            $image_resize->resize(920, null, function ($constraint) {
-                $constraint->aspectRatio();
-            });
+        if ($image_resize->width() > $image_resize->height()) {
+            $image_resize->scale(width: 920);
         } else {
-            $image_resize->resize(null, 540, function ($constraint) {
-                $constraint->aspectRatio();
-            });
+            $image_resize->scale(height: 540);
         }
     } elseif ($height == null) {
-        $image_resize->resize($width, null, function ($constraint) {
-            $constraint->aspectRatio();
-        });
+        $image_resize->scale(width: (int) $width);
     } elseif ($width == null) {
-        $image_resize->resize(null, $height, function ($constraint) {
-            $constraint->aspectRatio();
-        });
+        $image_resize->scale(height: (int) $height);
     } else {
-        $image_resize->resize($width, $height);
+        $image_resize->resize((int) $width, (int) $height);
     }
 
     $path = public_path("storage/$path");
@@ -363,33 +343,33 @@ function imageEngine($image, $filename = null, $width = null, $height = null,$pa
         File::makeDirectory($path, 0755, true);
     }
 
-    $quality = 80;
-    do {
-        $image_resize->encode('jpg', $quality);
-        $image_resize->save($path . $filename);
-        clearstatcache();
+    if ($supportsJpeg) {
+        $quality = 80;
+        $fileSize = 0;
+        do {
+            $image_resize->encodeUsingFormat(Format::JPEG, quality: $quality)->save($path . $filename);
+            clearstatcache();
 
-        if (file_exists($path . $filename) && is_readable($path . $filename)) {
-            $fileSize = filesize($path . $filename) / 1024;
+            if (file_exists($path . $filename) && is_readable($path . $filename)) {
+                $fileSize = filesize($path . $filename) / 1024;
 
-
-            if ($fileSize > 100) {
-                if ($quality - 10 < 0) {
-                    break;
-                }
-                try {
+                if ($fileSize > 100) {
+                    if ($quality - 10 < 0) {
+                        break;
+                    }
                     $quality -= 10;
-                    $image_resize->encode('jpg', $quality);
-                } catch (InvalidArgumentException $e) {
-                    echo "Error: " . $e->getMessage();
                 }
+            } else {
+                break;
             }
-        } else {
-            echo "Error: File does not exist or is not readable.";
-            break;
-        }
-    } while ($fileSize > 100);
+        } while ($fileSize > 100);
+    } else {
+        $image_resize->encodeUsingFormat(Format::PNG)->save($path . $filename);
+    }
+    
+    return $filename; // Return filename as it might be needed by caller (though original code didn't return it here, but typically helpers should)
 }
+
 
 function deleteImage($image, $path = null)
 {

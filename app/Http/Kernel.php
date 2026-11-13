@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'tutor'=> \App\Http\Middleware\TutorMiddleware::class,
         'student'=> \App\Http\Middleware\StudentMiddleware::class,
         'access'=> \App\Http\Middleware\CheckUserPermission::class,
+        'branch.access' => \App\Http\Middleware\CheckBranchAccess::class,
     ];
 }

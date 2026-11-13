@@ -11,25 +11,20 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use \Spatie\Activitylog\Models\Activity;
 use App\Traits\SocialSmartTechConstants;
+use App\Services\PermissionService;
 
 class PaymentController extends Controller
 {
     use SocialSmartTechConstants;
     public function index(Request $request)
     {
-        if (!$this->hasPermission('List payments')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('List payments')) {
+            abort(403, 'Unauthorized');
         }
 
         $search = $request->get('search', '');
-        $branch = session('branch');
-        $payments = empty($branch) ?
-            Payment::search($search)
-            ->latest()
-            ->paginate(999999999999)
-            ->withQueryString() :
-            Payment::search($search)
-            ->whereIn('applicant_id', Applicant::where('branch_id', $branch->id)->pluck('id'))
+        
+        $payments = Payment::search($search)
             ->latest()
             ->paginate(999999999999)
             ->withQueryString();
@@ -42,12 +37,11 @@ class PaymentController extends Controller
      */
     public function create(Request $request)
     {
-        if (!$this->hasPermission('Add payments')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canCreate('Add payments')) {
+            abort(403, 'Unauthorized');
         }
-        $branch = session('branch');
 
-        $applicants = empty($branch) ? Applicant::pluck('full_name','id') : Applicant::where('branch_id', $branch->id)->pluck('full_name', 'id');
+        $applicants = Applicant::pluck('full_name','id');
         $courses = Course::pluck('title', 'id');
 
         return view('app.payments.create', compact('applicants', 'courses'));
@@ -58,8 +52,8 @@ class PaymentController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if (!$this->hasPermission('Add payments')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canCreate('Add payments')) {
+            abort(403, 'Unauthorized');
         }
 
         $validated = $request->validate([
@@ -129,8 +123,8 @@ class PaymentController extends Controller
      */
     public function show(Request $request, Payment $payment)
     {
-        if (!$this->hasPermission('View payments')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canView('View payments', $payment)) {
+            abort(403, 'Unauthorized');
         }
 
         return view('app.payments.show', compact('payment'));
@@ -141,8 +135,8 @@ class PaymentController extends Controller
      */
     public function edit(Request $request, Payment $payment): RedirectResponse
     {
-        if (!$this->hasPermission('Update payments')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canUpdate('Update payments', $payment)) {
+            abort(403, 'Unauthorized');
         }
         //log activity performes by auth user
         activity()
@@ -168,8 +162,8 @@ class PaymentController extends Controller
      */
     public function update(Request $request, Payment $payment): RedirectResponse
     {
-        if (!$this->hasPermission('Update payments')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canUpdate('Update payments', $payment)) {
+            abort(403, 'Unauthorized');
         }
 
         $validated = $request->validate([
@@ -195,8 +189,8 @@ class PaymentController extends Controller
         Request $request,
         Payment $payment
     ){
-        if (!$this->hasPermission('Delete payments')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canDelete('Delete payments', $payment)) {
+            abort(403, 'Unauthorized');
         }
         //log activity performes by auth user name
         activity()

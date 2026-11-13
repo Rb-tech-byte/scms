@@ -10,14 +10,15 @@ use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Traits\SocialSmartTechConstants;
+use App\Services\PermissionService;
 
 class EnrollmentController extends Controller
 {
     use SocialSmartTechConstants;
     public function index(Request $request)
     {
-        if (!$this->hasPermission('List enrollments')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('List enrollments')) {
+            abort(403, 'Unauthorized');
         }
         $branch = session('branch');
 
@@ -42,8 +43,8 @@ class EnrollmentController extends Controller
      */
     public function create(Request $request)
     {
-         if (!$this->hasPermission('Add enrollments')) {
-            return redirect('permission-denied');
+         if (!PermissionService::canCreate('Add enrollments')) {
+            abort(403, 'Unauthorized');
         }
         $branch = session('branch');
 
@@ -64,8 +65,8 @@ class EnrollmentController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-         if (!$this->hasPermission('Add enrollments')) {
-            return redirect('permission-denied');
+         if (!PermissionService::canCreate('Add enrollments')) {
+            abort(403, 'Unauthorized');
         }
 
         $validated = $request->validate([
@@ -91,8 +92,8 @@ class EnrollmentController extends Controller
      */
     public function show(Request $request, Enrollment $enrollment)
     {
-        if (!$this->hasPermission('View enrollments')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canView('View enrollments', $enrollment)) {
+            abort(403, 'Unauthorized');
         }
 
         return view('app.enrollments.show', compact('enrollment'));
@@ -103,8 +104,8 @@ class EnrollmentController extends Controller
      */
     public function edit(Request $request, Enrollment $enrollment)
     {
-         if (!$this->hasPermission('Update enrollments')) {
-            return redirect('permission-denied');
+         if (!PermissionService::canUpdate('Update enrollments', $enrollment)) {
+            abort(403, 'Unauthorized');
         }
         $branch = session('branch');
         return redirect()->route('enrollments.index')->with('error', 'You are not allowed to edit enrollment directly. Please edit applicant first and then enroll him/her to a course. Thank you!');
@@ -127,8 +128,8 @@ class EnrollmentController extends Controller
         Request $request,
         Enrollment $enrollment
     ): RedirectResponse {
-         if (!$this->hasPermission('Update enrollments')) {
-            return redirect('permission-denied');
+         if (!PermissionService::canUpdate('Update enrollments', $enrollment)) {
+            abort(403, 'Unauthorized');
         }
 
         $validated = $request->validate([
@@ -156,8 +157,8 @@ class EnrollmentController extends Controller
         Request $request,
         Enrollment $enrollment
     ) {
-        if (!$this->hasPermission('Delete enrollments')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canDelete('Delete enrollments', $enrollment)) {
+            abort(403, 'Unauthorized');
         }
 
         $enrollment->delete();

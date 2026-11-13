@@ -7,6 +7,7 @@ use Illuminate\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Traits\SocialSmartTechConstants;
+use App\Services\PermissionService;
 
 class BranchController extends Controller
 {
@@ -18,7 +19,18 @@ class BranchController extends Controller
         }
         $search = $request->get('search', '');
 
-        $branches = Branch::search($search)
+        $branchesQuery = Branch::search($search);
+
+        if (!PermissionService::isSystemAdmin()) {
+            $branchId = session('user_branch_id');
+            if ($branchId) {
+                $branchesQuery->where('id', $branchId);
+            } else {
+                $branchesQuery->whereRaw('1 = 0');
+            }
+        }
+
+        $branches = $branchesQuery
             ->latest()
             ->paginate(999999999999)
             ->withQueryString();
@@ -35,6 +47,10 @@ class BranchController extends Controller
             return redirect('permission-denied');
         }
 
+        if (!PermissionService::isSystemAdmin()) {
+            return redirect('permission-denied');
+        }
+
         return view('app.branches.create');
     }
 
@@ -44,6 +60,10 @@ class BranchController extends Controller
     public function store(Request $request): RedirectResponse
     {
         if (!$this->hasPermission('Register branches')) {
+            return redirect('permission-denied');
+        }
+
+        if (!PermissionService::isSystemAdmin()) {
             return redirect('permission-denied');
         }
 
@@ -69,6 +89,10 @@ class BranchController extends Controller
             return redirect('permission-denied');
         }
 
+        if (!PermissionService::isSystemAdmin() && session('user_branch_id') != $branch->id) {
+            abort(403, 'Unauthorized');
+        }
+
         return view('app.branches.show', compact('branch'));
     }
 
@@ -81,6 +105,10 @@ class BranchController extends Controller
             return redirect('permission-denied');
         }
 
+        if (!PermissionService::isSystemAdmin() && session('user_branch_id') != $branch->id) {
+            abort(403, 'Unauthorized');
+        }
+
         return view('app.branches.edit', compact('branch'));
     }
 
@@ -91,6 +119,10 @@ class BranchController extends Controller
     {
          if (!$this->hasPermission('Update branches')) {
             return redirect('permission-denied');
+        }
+
+        if (!PermissionService::isSystemAdmin() && session('user_branch_id') != $branch->id) {
+            abort(403, 'Unauthorized');
         }
 
         $validated = $request->validate([
@@ -112,6 +144,10 @@ class BranchController extends Controller
     public function destroy(Request $request, Branch $branch)
     {
         if (!$this->hasPermission('Delete branches')) {
+            return redirect('permission-denied');
+        }
+
+        if (!PermissionService::isSystemAdmin()) {
             return redirect('permission-denied');
         }
 

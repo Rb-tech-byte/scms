@@ -1,0 +1,72 @@
+.profile-title{
+
+
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: green;
+}
+
+.auth-left-title{
+    color: rgb(255 216 0);
+    font-size: 18px;
+    font-weight:700;
+    padding-top: 10px;
+    text-align: center;
+}
+
+.text-welcome{
+    color: rgb(255, 255, 255);
+    font-size: 21px;
+    font-weight:700;
+    padding-top: -10px;
+    text-align: center;
+}
+
+.uni-blue{
+    color: #1197d6 !important;
+}
+
+.auth-left-contact{
+    text-align: center;
+    color: rgb(209, 214, 218);
+}
+
+.auth-left-contact .contact {
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+[class*=sidebar-dark] .nav-item {
+    border-bottom: 1px solid #9fa0a2;
+}
+
+.nav-item p {
+    color: rgb(255, 255, 255);
+    font-weight: bold;
+}
+
+/* CSS for mobile devices */
+@media (max-width: 600px) {
+    .only-small-screen {
+        display: block;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto;
+        /* This will show the image on mobile devices */
+    }
+
+    .text-welcome {
+        font-size: 16px;
+        text-align: center !important;
+        /* This will decrease the font size of the h1 text on mobile devices */
+    }
+}
+
+/* CSS for non-mobile devices */
+@media (min-width: 601px) {
+    .only-small-screen {
+        display: none;
+        /* This will hide the image on non-mobile devices */
+    }
+}

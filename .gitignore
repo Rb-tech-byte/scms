@@ -4,7 +4,7 @@
 /public/hot
 /public/qrcodes
 /public/storage
-/public/assets
+/cms.sql
 /storage/*.key
 /vendor
 .env

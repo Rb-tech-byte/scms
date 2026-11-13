@@ -11,6 +11,8 @@ use App\Models\Applicant;
 use App\Services\PaymentScheduleService;
 use Illuminate\Support\Carbon;
 
+use App\Services\PermissionService;
+
 class PaymentScheduleController extends Controller
 {
     protected PaymentScheduleService $scheduleService;
@@ -25,6 +27,10 @@ class PaymentScheduleController extends Controller
      */
     public function index(Request $request): View
     {
+        if (!PermissionService::can('list-invoices')) { // Assuming list-invoices covers this, or create new perm
+             abort(403, 'Unauthorized');
+        }
+
         $query = PaymentSchedule::with(['invoice.applicant'])
             ->orderBy('due_date', 'desc');
 
@@ -65,6 +71,7 @@ class PaymentScheduleController extends Controller
         ];
 
         // Get invoices with balances for dropdown
+        // Uses BranchScoped trait implicitly
         $invoices = Invoice::where('balance', '>', 0)
             ->with('applicant')
             ->orderBy('created_at', 'desc')
@@ -79,6 +86,10 @@ class PaymentScheduleController extends Controller
      */
     public function create(Request $request): View
     {
+        if (!PermissionService::canCreate('add-invoices')) { // Re-using invoice permissions
+            abort(403, 'Unauthorized');
+        }
+
         $invoice = null;
         
         if ($request->filled('invoice_id')) {
@@ -100,6 +111,10 @@ class PaymentScheduleController extends Controller
      */
     public function generate(Request $request): RedirectResponse
     {
+        if (!PermissionService::canCreate('add-invoices')) {
+            abort(403, 'Unauthorized');
+        }
+
         $validated = $request->validate([
             'invoice_id' => ['required', 'exists:invoices,id'],
             'template' => ['required', 'in:weekly,biweekly,monthly,quarterly'],
@@ -109,6 +124,7 @@ class PaymentScheduleController extends Controller
         ]);
 
         try {
+            // findOrFail respects global scope, preventing access to other branches' invoices
             $invoice = Invoice::with('paymentSchedules')->findOrFail($validated['invoice_id']);
             
             // Check if invoice has balance
@@ -143,6 +159,11 @@ class PaymentScheduleController extends Controller
      */
     public function show($invoiceId): View
     {
+        if (!PermissionService::can('view-invoices')) {
+            abort(403, 'Unauthorized');
+        }
+
+        // findOrFail respects global scope
         $invoice = Invoice::with(['applicant', 'paymentSchedules' => function ($query) {
             $query->orderBy('due_date');
         }])->findOrFail($invoiceId);
@@ -157,6 +178,10 @@ class PaymentScheduleController extends Controller
      */
     public function update(Request $request, PaymentSchedule $schedule): RedirectResponse
     {
+        if (!PermissionService::canUpdate('update-invoices', $schedule)) {
+            abort(403, 'Unauthorized');
+        }
+
         $validated = $request->validate([
             'due_date' => ['sometimes', 'date'],
             'amount' => ['sometimes', 'numeric', 'min:0'],
@@ -178,6 +203,10 @@ class PaymentScheduleController extends Controller
      */
     public function destroy(PaymentSchedule $schedule): RedirectResponse
     {
+        if (!PermissionService::canDelete('delete-invoices', $schedule)) {
+            abort(403, 'Unauthorized');
+        }
+
         try {
             $invoiceId = $schedule->invoice_id;
             $schedule->delete();
@@ -195,6 +224,10 @@ class PaymentScheduleController extends Controller
      */
     public function markAsSent(PaymentSchedule $schedule): RedirectResponse
     {
+        if (!PermissionService::canUpdate('update-invoices', $schedule)) {
+            abort(403, 'Unauthorized');
+        }
+
         try {
             $schedule->markAsSent();
             return back()->with('success', 'Schedule marked as sent.');
@@ -208,6 +241,10 @@ class PaymentScheduleController extends Controller
      */
     public function cancel(Request $request, PaymentSchedule $schedule): RedirectResponse
     {
+        if (!PermissionService::canUpdate('update-invoices', $schedule)) {
+            abort(403, 'Unauthorized');
+        }
+
         $validated = $request->validate([
             'notes' => ['nullable', 'string', 'max:500'],
         ]);
@@ -225,6 +262,10 @@ class PaymentScheduleController extends Controller
      */
     public function reminders(Request $request): View
     {
+        if (!PermissionService::can('view-invoices')) {
+            abort(403, 'Unauthorized');
+        }
+
         $daysAhead = $request->get('days_ahead', 7);
         
         $schedules = $this->scheduleService->getSchedulesDueForReminder($daysAhead);
@@ -237,6 +278,10 @@ class PaymentScheduleController extends Controller
      */
     public function sendReminders(Request $request): RedirectResponse
     {
+        if (!PermissionService::canUpdate('update-invoices', null)) { // Generic check
+            abort(403, 'Unauthorized');
+        }
+
         $validated = $request->validate([
             'schedule_ids' => ['required', 'array'],
             'schedule_ids.*' => ['exists:payment_schedules,id'],

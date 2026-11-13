@@ -36,5 +36,9 @@ class DatabaseSeeder extends Seeder
         $this->call(TutorSeeder::class);
         $this->call(UserSeeder::class);
         $this->call(VenueSeeder::class);
+
+        // Run manually only when upgrading existing DB:
+        // php artisan db:seed --class=Database\\Seeders\\BackfillUserBranchIdSeeder
+        // $this->call(BackfillUserBranchIdSeeder::class);
     }
 }

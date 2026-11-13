@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Enumerable;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
@@ -24,7 +25,7 @@ class ReportsExport implements FromCollection, WithHeadings, WithMapping, WithSt
         $this->reports = $reports;
     }
 
-    public function collection()
+    public function collection(): Enumerable
     {
         return collect($this->reports);
     }
@@ -56,7 +57,7 @@ class ReportsExport implements FromCollection, WithHeadings, WithMapping, WithSt
         ];
     }
 
-    public function map($report): array
+    public function map(mixed $report): array
     {
         $this->rowNumber++;
         
@@ -86,7 +87,7 @@ class ReportsExport implements FromCollection, WithHeadings, WithMapping, WithSt
         ];
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): ?array
     {
         // Style the header row (will be row 5 after insertions)
         return [

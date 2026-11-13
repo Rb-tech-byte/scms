@@ -22,7 +22,8 @@ class User extends Authenticatable
         'address',
         'password',
         'user_type',
-        'davinci_role_id'
+        'davinci_role_id',
+        'branch_id'
     ];
 
     protected $searchableFields = ['*'];
@@ -48,18 +49,6 @@ class User extends Authenticatable
             }
         }
     }
-
-   /* public function hasRole($role){
-        
-        if(!empty($this->davinci_role_id)){
-            $userRole = $this->role()->name;
-        if($userRole==$role){
-                return true;
-            }
-            return false;
-        }
-        return false;
-    }*/
 
     public function hasRole($role)
 {
@@ -111,7 +100,33 @@ class User extends Authenticatable
 
     public function hasPermission($permission)
     {
-        return $this->permissions->contains('name', $permission);
+        if (!$permission) {
+            return false;
+        }
+
+        if ($this->hasRole('system-admin')) {
+            return true;
+        }
+
+        $raw = trim((string) $permission);
+        $normalized = strtolower($raw);
+        $normalized = preg_replace('/\s+/', '-', $normalized);
+        $normalized = str_replace('_', '-', $normalized);
+
+        $permissions = $this->relationLoaded('permissions')
+            ? $this->permissions
+            : $this->permissions()->get();
+
+        if ($permissions->contains('name', $raw) || $permissions->contains('name', $normalized)) {
+            return true;
+        }
+
+        $role = $this->role();
+        if ($role) {
+            return $role->hasPermissionTo($raw) || $role->hasPermissionTo($normalized);
+        }
+
+        return false;
     }
     public function assignRole($role)
     {
@@ -124,5 +139,44 @@ class User extends Authenticatable
         }
         
         return $this->save();
+    }
+
+    /**
+     * Get user's branch (Accessor)
+     * Usage: $user->branch
+     */
+    public function getBranchAttribute()
+    {
+        // 1. Check if user is a tutor
+        // Use the relationship 'tutor' (singular)
+        if ($this->relationLoaded('tutor')) {
+            $tutor = $this->tutor;
+        } else {
+            $tutor = $this->tutor()->first();
+        }
+
+        if ($tutor) {
+            // Assuming Tutor belongsTo Branch
+            return $tutor->branch; 
+        }
+
+        // 2. Check if user is an applicant
+        // Use 'applicants' (hasMany) - usually one active applicant?
+        if ($this->relationLoaded('applicants')) {
+            $applicant = $this->applicants->first();
+        } else {
+            $applicant = $this->applicants()->first();
+        }
+
+        if ($applicant) {
+            return $applicant->branch;
+        }
+        
+        // 3. Check direct branch_id if exists
+        if (isset($this->branch_id)) {
+            return \App\Models\Branch::find($this->branch_id);
+        }
+
+        return null;
     }
 }

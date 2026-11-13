@@ -10,6 +10,7 @@ class CourseAssignment extends Model
 {
     use HasFactory;
     use Searchable;
+    use \App\Traits\BranchScoped;
 
     protected $fillable = [
         'branch_id',

@@ -201,7 +201,13 @@ Route::get('force-password-reset', [ForceResetPasswordController::class, 'showFo
 Route::post('force-password-reset', [ForceResetPasswordController::class, 'update'])->name('password.force_reset.update');
 Auth::routes();
 
-Route::get('/dashboard', [HomeController::class, 'index'])->name('home');
+Route::get('/dashboard', [HomeController::class, 'index'])->middleware(['auth', 'branch.access'])->name('home');
+
+Route::get('/no-branch', function () {
+    return view('dashboards.no-dashboard', [
+        'reason' => 'Your account is not assigned to any branch yet. Please contact the System Admin to assign your branch.',
+    ]);
+})->middleware(['auth'])->name('no-branch');
 
 Route::get('v1/countries/search', [ApiController::class, 'search'])->name('countries.search');
 Route::get('/get-course-fee/{selectedCourseId}', [ApiController::class, 'fetchCourseFees'])->name('fees.get');
@@ -218,7 +224,7 @@ Route::get('/get-branches', [ApiController::class, 'fetchBranch']);
 
 
 Route::prefix('/')
-    ->middleware('auth')
+    ->middleware(['auth', 'branch.access'])
     ->group(function () {
         route::get('permission-denied', function () {
             abort(403);

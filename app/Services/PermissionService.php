@@ -23,8 +23,13 @@ class PermissionService
             return true;
         }
 
+        $raw = trim((string) $permission);
+        $normalized = strtolower($raw);
+        $normalized = preg_replace('/\s+/', '-', $normalized);
+        $normalized = str_replace('_', '-', $normalized);
+
         // Check user's specific permission
-        return $user->hasPermission($permission);
+        return $user->hasPermission($raw) || $user->hasPermission($normalized);
     }
 
     /**
@@ -70,7 +75,7 @@ class PermissionService
 
         // System admin can create anywhere
         if ($user->hasRole('system-admin')) {
-            return $user->hasPermission($permission);
+            return true;
         }
 
         // Branch admin can create in their branch
@@ -94,7 +99,7 @@ class PermissionService
 
         // System admin can update anything
         if ($user->hasRole('system-admin')) {
-            return $user->hasPermission($permission);
+            return true;
         }
 
         // Branch admin can update in their branch
@@ -137,7 +142,7 @@ class PermissionService
 
         // System admin can view anything
         if ($user->hasRole('system-admin')) {
-            return $user->hasPermission($permission);
+            return true;
         }
 
         // Branch admin and tutors can view their branch data

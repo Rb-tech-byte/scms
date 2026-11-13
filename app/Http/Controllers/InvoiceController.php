@@ -13,6 +13,7 @@ use \Spatie\Activitylog\Models\Activity;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Codedge\Fpdf\Fpdf\Fpdf;
 use App\Traits\SocialSmartTechConstants;
+use App\Services\PermissionService;
 
 
 
@@ -30,47 +31,35 @@ class InvoiceController extends Controller
      */
     public function index(Request $request)
     {
-        if (!$this->hasPermission('List invoices')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('List invoices')) {
+            abort(403, 'Unauthorized');
         }
-        $branch = session('branch');
 
-            if(auth()->user()->hasRole('student')){
-                $applicant = Applicant::where('user_id', auth()->user()->id)->first();
-                $this->data['invoices'] = Invoice::where('applicant_id', $applicant->id)->latest()->get();
-            }else{
-                 $this->data['invoices'] = empty($branch) ? Invoice::latest()->get(): Invoice::whereIn('applicant_id',Applicant::where('branch_id',$branch->id)->pluck('id'))->latest()->get();
-
-            }
+        $this->data['invoices'] = Invoice::latest()->get();
         return view('app.invoices.index', $this->data);
     }
 
     public function partial_invoice(Request $request)
     {
-        if (!$this->hasPermission('List invoices')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('List invoices')) {
+            abort(403, 'Unauthorized');
         }
-        $branch = session('branch');
 
-        $this->data['invoices'] = empty($branch) ? Invoice::where(function ($query) {
-            $query->where('status', '2')
-                  ->orWhere('status', '0');
-        })->latest()->get(): Invoice::whereIn('applicant_id',Applicant::where('branch_id',$branch->id)->pluck('id'))->where(function ($query) {
+        $this->data['invoices'] = Invoice::where(function ($query) {
             $query->where('status', '2')
                   ->orWhere('status', '0');
         })->latest()->get();
-        // Invoice::where('status','2')->orWhere('status','0')->get();
+
         return view('app.invoices.index', $this->data);
     }
 
     public function paid_invoice(Request $request)
     {
-        if (!$this->hasPermission('List invoices')) {
-            return redirect('permission-denied');
+        if (!PermissionService::can('List invoices')) {
+            abort(403, 'Unauthorized');
         }
-        $branch = session('branch');
 
-        $this->data['invoices']= empty($branch ) ? Invoice::where('status', '1')->latest()->get(): Invoice::whereIn('applicant_id',Applicant::where('branch_id',$branch->id)->pluck('id'))->latest()->get();
+        $this->data['invoices'] = Invoice::where('status', '1')->latest()->get();
         return view('app.invoices.index', $this->data);
     }
 
@@ -79,8 +68,8 @@ class InvoiceController extends Controller
      */
     public function create(Request $request): RedirectResponse
     {
-        if (!$this->hasPermission('Add invoices')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canCreate('Add invoices')) {
+            abort(403, 'Unauthorized');
         }
         activity()
                 ->causedBy(auth()->user())
@@ -106,8 +95,8 @@ class InvoiceController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        if (!$this->hasPermission('Add invoices')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canCreate('Add invoices')) {
+            abort(403, 'Unauthorized');
         }
 
         $validated = $request->validate([
@@ -133,8 +122,8 @@ class InvoiceController extends Controller
      */
     public function show(Request $request, Invoice $invoice)
     {
-        if (!$this->hasPermission('View invoices')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canView('View invoices', $invoice)) {
+            abort(403, 'Unauthorized');
         }
         $this->data['invoice'] = $invoice;
         return view('app.invoices.show', $this->data);
@@ -145,8 +134,8 @@ class InvoiceController extends Controller
      */
     public function edit(Request $request, Invoice $invoice): RedirectResponse
     {
-         if (!$this->hasPermission('Update invoices')) {
-            return redirect('permission-denied');
+         if (!PermissionService::canUpdate('Update invoices', $invoice)) {
+            abort(403, 'Unauthorized');
         }
 
         activity()
@@ -172,8 +161,8 @@ class InvoiceController extends Controller
      */
     public function update(Request $request, Invoice $invoice): RedirectResponse
     {
-         if (!$this->hasPermission('Update invoices')) {
-            return redirect('permission-denied');
+         if (!PermissionService::canUpdate('Update invoices', $invoice)) {
+            abort(403, 'Unauthorized');
         }
 
         $validated = $request->validate([
@@ -209,16 +198,9 @@ class InvoiceController extends Controller
         Request $request,
         Invoice $invoice
     ) {
-        if (!$this->hasPermission('Delete invoices')) {
-            return redirect('permission-denied');
+        if (!PermissionService::canDelete('Delete invoices', $invoice)) {
+            abort(403, 'Unauthorized');
         }
-
-        //check if Auth user is not system-admin then return warning
-        if(auth()->user()->hasRole('system-admin') == false){
-            return redirect()->back()
-                ->with('error', 'You are not Authorised to delete this invoice !');
-        }
-
 
         //check if invoice has payments then if it have payments returns warning to delete payments first
         if ($invoice->payments()->count() > 0) {
@@ -241,6 +223,11 @@ class InvoiceController extends Controller
     public function generate_invoice_pdf($id){
 
         $invoice = Invoice::findOrFail($id);
+        
+        if (!PermissionService::canView('View invoices', $invoice)) {
+            abort(403, 'Unauthorized');
+        }
+
         $status = $invoice->status;
         $status_color = '52, 71, 209';
         $text_color = '52, 71, 209';

@@ -101,7 +101,7 @@
                                             </tr>
                                             <tr>
                                                 <th class="h6">Branch</th>
-                                                <td class="h6 text-small">{{ $user->branch->name ?? '-' }}</td>
+                                                <td class="h6 text-small">{{ optional($user->branch)->name ?? '-' }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
