@@ -29,9 +29,38 @@ class UserController extends Controller
             abort(403, 'Unauthorized');
         }
 
-        $usersQuery = User::where('user_type', 'staff');
+        $usersQuery = User::with(['branch']);
 
-        if (Auth::user()->hasRole('branch-admin')) {
+        $userType = $request->get('user_type', 'all');
+        if (in_array($userType, ['staff', 'student'], true)) {
+            $usersQuery->where('user_type', $userType);
+        }
+
+        if ($search = trim((string) $request->get('search', ''))) {
+            $usersQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        if ($roleId = $request->get('role_id')) {
+            $usersQuery->where('davinci_role_id', $roleId);
+        }
+
+        if ($branchIdFilter = $request->get('branch_id')) {
+            $usersQuery->where('branch_id', $branchIdFilter);
+        }
+
+        $status = $request->get('status');
+        if ($status === 'blocked') {
+            $usersQuery->where('is_blocked', true);
+        } elseif ($status === 'active') {
+            $usersQuery->where('is_blocked', false);
+        }
+
+        if (Auth::user()->hasRole(['branch-admin', 'training-coordinator'])) {
+            $usersQuery->where('user_type', 'staff');
             $branchId = session('user_branch_id');
             if ($branchId) {
                 $usersQuery->where(function ($q) use ($branchId) {
@@ -45,8 +74,11 @@ class UserController extends Controller
             }
         }
 
-        $users = $usersQuery->latest()->get();
-        return view('app.users.index', compact('users'));
+        $users = $usersQuery->orderBy('name')->get();
+        $roles = Role::orderBy('name')->get();
+        $branches = Branch::orderBy('name')->get();
+
+        return view('app.users.index', compact('users', 'roles', 'branches'));
     }
 
 
@@ -316,5 +348,37 @@ class UserController extends Controller
         // return redirect()
         //     ->route('users.index')
         //     ->withSuccess(__('crud.common.removed'));
+    }
+
+    /**
+     * Block or unblock a system user (SRS R3) and clear temporary security lockouts on unblock.
+     */
+    public function toggleBlock(Request $request, User $user): RedirectResponse
+    {
+        if (!PermissionService::can('block-users') && !PermissionService::can('Manage staffs')) {
+            abort(403, 'Unauthorized');
+        }
+
+        if ((int) Auth::id() === (int) $user->id) {
+            return back()->with('error', 'You cannot block your own active administrator account.');
+        }
+
+        $newState = !$user->is_blocked;
+        $user->forceFill([
+            'is_blocked' => $newState,
+            'blocked_at' => $newState ? now() : null,
+            'blocked_reason' => $newState ? ($request->input('reason') ?: 'Blocked by Systems Administrator') : null,
+            'failed_login_attempts' => 0,
+            'lockout_count' => 0,
+            'locked_until' => null,
+            'active_session_id' => $newState ? null : $user->active_session_id,
+        ])->save();
+
+        activity('security')
+            ->causedBy(Auth::user())
+            ->performedOn($user)
+            ->log($newState ? "Blocked user {$user->email}" : "Unblocked user {$user->email}");
+
+        return back()->with('success', $newState ? "User {$user->name} has been blocked." : "User {$user->name} has been unblocked.");
     }
 }

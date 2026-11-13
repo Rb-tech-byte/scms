@@ -115,7 +115,7 @@ class PaymentScheduleService
 
         return PaymentSchedule::with(['invoice.applicant'])
             ->whereNull('sent_at')
-            ->where('status', PaymentSchedule::STATUS_PENDING)
+            ->whereIn('status', [PaymentSchedule::STATUS_PENDING, PaymentSchedule::STATUS_OVERDUE])
             ->whereDate('due_date', '<=', $endDate)
             ->orderBy('due_date')
             ->get();

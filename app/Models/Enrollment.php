@@ -17,6 +17,8 @@ class Enrollment extends Model
         'end_date',
         'fee',
         'duration',
+        'enrollment_status',
+        'attendance_percentage',
     ];
     protected $searchableFields = ['*'];
     protected $casts = [
@@ -38,5 +40,15 @@ class Enrollment extends Model
     public function invoices()
     {
         return $this->hasOne(Invoice::class);
+    }
+
+    public function certificate()
+    {
+        return $this->hasOne(Certificate::class);
+    }
+
+    public function attendanceRecords()
+    {
+        return $this->hasMany(AttendanceRecord::class);
     }
 }

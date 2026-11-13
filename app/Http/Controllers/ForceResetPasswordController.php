@@ -24,9 +24,17 @@ class ForceResetPasswordController extends Controller
         $user = $request->user();
         $user->password = Hash::make($request->password);
         $user->force_password_reset = false;
+        $user->password_changed_at = now();
+        $user->active_session_id = null;
         $user->save();
 
+        activity('security')
+            ->causedBy($user)
+            ->log('User completed mandatory password change');
+
         auth()->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return redirect()->route('login')->with('success', 'Password updated. Please log in.');
     }

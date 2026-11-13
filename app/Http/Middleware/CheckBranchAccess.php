@@ -23,8 +23,8 @@ class CheckBranchAccess
             return redirect()->route('login');
         }
 
-        // System admin can access everything
-        if ($user->hasRole('system-admin')) {
+        // System admin, Director, and Marketing Officer have institutional multi-branch scope
+        if ($user->hasRole(['system-admin', 'director', 'marketing-officer'])) {
             return $next($request);
         }
 

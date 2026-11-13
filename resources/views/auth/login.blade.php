@@ -68,6 +68,18 @@
                         onclick="quickLogin('student@scms.out.co.tz', 'Password123456789@')">
                         <i class="fas fa-user-graduate mr-1"></i> Student <small class="text-muted">(student@scms.out.co.tz)</small>
                     </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm btn-block text-left"
+                        onclick="quickLogin('director@scms.out.co.tz', 'Password123456789@')">
+                        <i class="fas fa-user-tie mr-1"></i> Director <small class="text-muted">(director@scms.out.co.tz)</small>
+                    </button>
+                    <button type="button" class="btn btn-outline-dark btn-sm btn-block text-left"
+                        onclick="quickLogin('marketing@scms.out.co.tz', 'Password123456789@')">
+                        <i class="fas fa-bullhorn mr-1"></i> Marketing Officer <small class="text-muted">(marketing@scms.out.co.tz)</small>
+                    </button>
+                    <button type="button" class="btn btn-outline-warning btn-sm btn-block text-left"
+                        onclick="quickLogin('tutor@scms.out.co.tz', 'Password123456789@')">
+                        <i class="fas fa-chalkboard-teacher mr-1"></i> Instructor <small class="text-muted">(tutor@scms.out.co.tz)</small>
+                    </button>
                 </div>
             </div>
             <script>

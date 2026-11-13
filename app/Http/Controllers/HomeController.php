@@ -25,8 +25,10 @@ class HomeController extends Controller
 
 
         $user = auth()->user();
-        if ($user->hasRole('system-admin') || $user->hasRole('branch-admin')) {
+        if ($user->hasRole(['system-admin', 'branch-admin', 'training-coordinator', 'marketing-officer'])) {
             return $this->adminDashboard();
+        } elseif ($user->hasRole('director')) {
+            return $this->directorDashboard();
         } elseif ($user->hasRole('tutor')) {
             return $this->tutorDashboard();
         } elseif ($user->hasRole('student')) {
@@ -35,6 +37,12 @@ class HomeController extends Controller
             return $this->guestDashboard();
         }
 
+    }
+
+    public function directorDashboard()
+    {
+        $dashboard = new \App\Http\Controllers\Dahboards\DirectorDashboard();
+        return $dashboard->index();
     }
 
 

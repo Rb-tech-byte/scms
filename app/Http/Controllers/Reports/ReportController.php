@@ -323,4 +323,97 @@ class ReportController extends Controller
             'summary'
         ));
     }
+
+    /**
+     * Weekly / Monthly / Quarterly ongoing regional center course report (SRS R2).
+     * Displays centre name, course name, teaching method, total students, and full/half/unpaid status counts.
+     */
+    public function centerCourseReport(Request $request)
+    {
+        $period = $request->input('period', 'monthly');
+        $branchId = $request->input('branch_id');
+        $sessionBranch = session('branch');
+
+        if (!$branchId && !empty($sessionBranch)) {
+            $branchId = $sessionBranch->id;
+        }
+
+        $startDate = match ($period) {
+            'weekly' => now()->startOfWeek(),
+            'quarterly' => now()->firstOfQuarter(),
+            'all' => null,
+            default => now()->startOfMonth(),
+        };
+
+        $enrollments = Enrollment::with(['course', 'venue.branch', 'applicant', 'invoices'])
+            ->when($branchId, function ($q) use ($branchId) {
+                $q->whereHas('venue', fn ($vq) => $vq->where('branch_id', $branchId));
+            })
+            ->when($startDate, fn ($q) => $q->whereDate('start_date', '>=', $startDate->toDateString()))
+            ->get();
+
+        $rows = $enrollments
+            ->groupBy(fn ($e) => ($e->venue?->branch_id ?? 0) . '-' . ($e->course_id ?? 0))
+            ->map(function ($group) {
+                $first = $group->first();
+                $fullCount = 0;
+                $halfCount = 0;
+                $unpaidCount = 0;
+                $collected = 0.0;
+                $outstanding = 0.0;
+
+                foreach ($group as $enrollment) {
+                    $invoice = $enrollment->invoices;
+                    if (!$invoice || $invoice->status === '0') {
+                        $unpaidCount++;
+                    } elseif ($invoice->status === '1') {
+                        $fullCount++;
+                    } else {
+                        $halfCount++;
+                    }
+                    if ($invoice) {
+                        $collected += (float) $invoice->paid_amount;
+                        $outstanding += (float) $invoice->balance;
+                    }
+                }
+
+                return [
+                    'branch_name' => $first->venue?->branch?->name ?? 'Main Centre',
+                    'course_title' => $first->course?->title ?? 'Course',
+                    'teaching_method' => $first->course?->teachingMethodLabel() ?? 'Face to Face',
+                    'total_students' => $group->count(),
+                    'full_paid' => $fullCount,
+                    'half_paid' => $halfCount,
+                    'unpaid' => $unpaidCount,
+                    'collected' => $collected,
+                    'outstanding' => $outstanding,
+                ];
+            })
+            ->sortBy([['branch_name', 'asc'], ['course_title', 'asc']])
+            ->values();
+
+        if ($request->input('export') === 'csv') {
+            return response()->streamDownload(function () use ($rows) {
+                $handle = fopen('php://output', 'w');
+                fputcsv($handle, ['Centre Name', 'Course Name', 'Teaching Method', 'Total Students', 'Full Paid', 'Half / Partial Paid', 'Unpaid', 'Collected (TZS)', 'Outstanding (TZS)']);
+                foreach ($rows as $row) {
+                    fputcsv($handle, array_values($row));
+                }
+                fclose($handle);
+            }, 'center_course_report_' . $period . '_' . date('Ymd_His') . '.csv');
+        }
+
+        if ($request->input('export') === 'pdf') {
+            $pdf = Pdf::loadView('reports.center-course-pdf', [
+                'rows' => $rows,
+                'period' => $period,
+                'generatedAt' => now()->format('d/m/Y H:i'),
+            ]);
+            return $pdf->download('center_course_report_' . $period . '_' . date('Ymd_His') . '.pdf');
+        }
+
+        $branches = empty($sessionBranch) ? Branch::orderBy('name')->get() : Branch::where('id', $sessionBranch->id)->get();
+
+        return view('reports.center-course-report', compact('rows', 'period', 'branchId', 'branches'));
+    }
 }

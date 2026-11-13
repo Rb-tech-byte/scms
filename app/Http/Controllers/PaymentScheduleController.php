@@ -288,13 +288,50 @@ class PaymentScheduleController extends Controller
         ]);
 
         try {
-            $schedules = PaymentSchedule::whereIn('id', $validated['schedule_ids'])->get();
-            
+            $schedules = PaymentSchedule::with(['invoice.applicant', 'invoice.enrollment.course'])
+                ->whereIn('id', $validated['schedule_ids'])
+                ->get();
+
+            $template = \App\Models\NotificationTemplate::where('key', 'payment_overdue_alert')
+                ->where('is_active', true)
+                ->first();
+
+            $emailed = 0;
+            foreach ($schedules as $schedule) {
+                $applicant = $schedule->invoice?->applicant;
+                $course = $schedule->invoice?->enrollment?->course;
+                $body = $template
+                    ? $template->render([
+                        'student_name' => $applicant?->full_name ?? 'Student',
+                        'course_title' => $course?->title ?? 'Short Course',
+                        'invoice_number' => $schedule->invoice?->invoice_prefix ?? '',
+                        'control_number' => $schedule->invoice?->control_number ?? 'N/A',
+                        'balance' => number_format((float) $schedule->amount, 2),
+                        'due_date' => $schedule->due_date?->format('d-m-Y') ?? '',
+                    ])
+                    : "Overdue payment reminder: Please pay {$schedule->amount} TZS due on {$schedule->due_date?->format('d-m-Y')}.";
+
+                \App\Models\Notification::create([
+                    'applicant_id' => $applicant?->id,
+                    'user_id' => $applicant?->user_id,
+                    'message' => $body,
+                ]);
+
+                if ($applicant && !empty($applicant->email)) {
+                    try {
+                        \Illuminate\Support\Facades\Mail::to($applicant->email)->send(
+                            new \App\Mail\SendMail($body, $template?->subject ?: 'SCMIS Payment Overdue Alert')
+                        );
+                        $emailed++;
+                    } catch (\Throwable $mailEx) {
+                        // Local mail server may be disabled; keep status sync resilient
+                    }
+                }
+            }
+
             $count = $this->scheduleService->markSchedulesAsSent($schedules);
 
-            // TODO: Integrate with notification system (email/SMS)
-
-            return back()->with('success', "Marked {$count} schedule(s) as sent.");
+            return back()->with('success', "Sent {$count} reminder(s) ({$emailed} email(s) dispatched).");
         } catch (\Exception $e) {
             return back()->with('error', 'Error: ' . $e->getMessage());
         }

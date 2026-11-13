@@ -298,7 +298,7 @@ class InvoiceController extends Controller
         $pdf->Ln();
         $pdf->Cell(50, 7, '+255 799 888 234 | +255 799 888 233', 0, 0, 'L');
         $pdf->Cell(80, 7);
-        $pdf->Cell(50, 7);
+        $pdf->Cell(50, 7, $invoice->control_number ? 'Control No: ' . $invoice->control_number : '', 0, 0, 'R');
         $pdf->Ln(8);
         $pdf->Cell(50, 7, 'Receipt No(s): ' . ($receiptNumbers ?: '-'), 0, 0, 'L');
         $pdf->Cell(80, 7, '', 0);

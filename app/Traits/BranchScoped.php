@@ -56,15 +56,15 @@ trait BranchScoped
                 return;
             }
 
-            // System admin can see everything
-            if ($user->hasRole('system-admin')) {
+            // System admin, Director, and Marketing Officer have cross-branch visibility
+            if ($user->hasRole(['system-admin', 'director', 'marketing-officer'])) {
                 return;
             }
 
             $branchId = session('user_branch_id');
 
-            // Branch admin and tutors see only their branch data
-            if ($user->hasRole(['branch-admin', 'tutor'])) {
+            // Branch admin, training coordinator, and tutors see only their branch data
+            if ($user->hasRole(['branch-admin', 'training-coordinator', 'tutor'])) {
                 if (!$branchId) {
                     return;
                 }

@@ -53,6 +53,7 @@ class CourseController extends Controller
             'title' => ['required', 'max:255', 'string'],
             'fee' => ['required', 'numeric'],
             'duration' => ['required', 'in:1,2,3,4,5,6,7,8,9,10'],
+            'teaching_method' => ['required', 'in:face_to_face,online,both'],
             'has_discount' => ['required', 'boolean'],
             'discount' => ['nullable', 'numeric'],
         ]);
@@ -101,6 +102,7 @@ class CourseController extends Controller
             'title' => ['required', 'max:255', 'string'],
             'fee' => ['required', 'numeric'],
             'duration' => ['required', 'in:1,2,3,4,5,6,7,8,9,10'],
+            'teaching_method' => ['required', 'in:face_to_face,online,both'],
             'has_discount' => ['required', 'boolean'],
             'discount' => ['nullable', 'numeric'],
         ]);

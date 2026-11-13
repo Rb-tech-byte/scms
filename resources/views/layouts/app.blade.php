@@ -187,6 +187,7 @@
             });
         });
     </script>
+    <script src="{{ asset('assets/js/srs-draft.js') }}"></script>
     @stack('js')
 
 

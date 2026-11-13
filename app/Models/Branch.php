@@ -29,4 +29,9 @@ class Branch extends Model
     {
         return $this->hasMany(CourseAssignment::class);
     }
+
+    public function applicants()
+    {
+        return $this->hasMany(Applicant::class);
+    }
 }

@@ -55,7 +55,17 @@ class User extends Authenticatable
         'password',
         'user_type',
         'davinci_role_id',
-        'branch_id'
+        'branch_id',
+        'force_password_reset',
+        'is_blocked',
+        'blocked_at',
+        'blocked_reason',
+        'failed_login_attempts',
+        'lockout_count',
+        'locked_until',
+        'password_changed_at',
+        'active_session_id',
+        'last_activity_at',
     ];
 
     /**
@@ -79,7 +89,33 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'force_password_reset' => 'boolean',
+        'is_blocked' => 'boolean',
+        'blocked_at' => 'datetime',
+        'locked_until' => 'datetime',
+        'password_changed_at' => 'datetime',
+        'last_activity_at' => 'datetime',
     ];
+
+    /**
+     * Check whether the user's password has exceeded the 3-month SRS expiry policy.
+     */
+    public function isPasswordExpired(): bool
+    {
+        if (!$this->password_changed_at) {
+            return false;
+        }
+
+        return $this->password_changed_at->lt(now()->subMonths(3));
+    }
+
+    /**
+     * Check whether the user is currently in a temporary login lockout window.
+     */
+    public function isLockedOut(): bool
+    {
+        return $this->locked_until !== null && $this->locked_until->isFuture();
+    }
 
     /**
      * Get all applicant intake records linked to this user.
@@ -89,6 +125,16 @@ class User extends Authenticatable
     public function applicants()
     {
         return $this->hasMany(Applicant::class);
+    }
+
+    /**
+     * Get the assigned branch/center for this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class, 'branch_id');
     }
 
     /**

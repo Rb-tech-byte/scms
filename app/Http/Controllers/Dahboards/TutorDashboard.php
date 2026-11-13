@@ -62,7 +62,9 @@ class TutorDashboard extends Controller
         $this->data['teached_sessions'] = CourseAssignment::where('tutor_id', $tutorId)
             ->where('is_teached', 1)->get();
         $this->data['count_new_messages'] = Message::where('receiver_id', $user->id)->where('opened', 0)->count();
-        
+        $this->data['ready_certificates_count'] = \App\Models\Certificate::where('branch_id', $branchId)
+            ->whereIn('status', ['ready', 'issued'])
+            ->count();
 
         return view('dashboards.tutor', $this->data);
     }

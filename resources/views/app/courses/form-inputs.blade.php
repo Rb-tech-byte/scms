@@ -11,24 +11,25 @@
             required></x-inputs.number>
     </x-inputs.group>
 
-    <x-inputs.group class="col-sm-12 col-lg-4">
+    <x-inputs.group class="col-sm-12 col-lg-3">
         <x-inputs.select name="duration" label="Duration">
             @php $selected = old('duration', ($editing ? $course->duration : '')) @endphp
-            <option value="1" {{ $selected == '1' ? 'selected' : '' }}>1 Week</option>
-            <option value="2" {{ $selected == '2' ? 'selected' : '' }}>2 Week</option>
-            <option value="3" {{ $selected == '3' ? 'selected' : '' }}>3 Week</option>
-            <option value="4" {{ $selected == '4' ? 'selected' : '' }}>4 Week</option>
-            <option value="5" {{ $selected == '5' ? 'selected' : '' }}>5 Week</option>
-            <option value="6" {{ $selected == '6' ? 'selected' : '' }}>6 Week</option>
-            <option value="7" {{ $selected == '7' ? 'selected' : '' }}>7 Week</option>
-            <option value="7" {{ $selected == '7' ? 'selected' : '' }}>7 Week</option>
-            <option value="8" {{ $selected == '8' ? 'selected' : '' }}>8 Week</option>
-            <option value="9" {{ $selected == '9' ? 'selected' : '' }}>9 Week</option>
-            <option value="10" {{ $selected == '10' ? 'selected' : '' }}>10 Week</option>
+            @for($w = 1; $w <= 10; $w++)
+                <option value="{{ $w }}" {{ $selected == (string)$w ? 'selected' : '' }}>{{ $w }} Week{{ $w > 1 ? 's' : '' }}</option>
+            @endfor
         </x-inputs.select>
     </x-inputs.group>
 
-    <x-inputs.group class="col-sm-12 col-lg-4">
+    <x-inputs.group class="col-sm-12 col-lg-3">
+        <x-inputs.select name="teaching_method" label="Teaching Method *">
+            @php $methodSelected = old('teaching_method', ($editing ? $course->teaching_method : 'face_to_face')) @endphp
+            <option value="face_to_face" {{ $methodSelected === 'face_to_face' ? 'selected' : '' }}>Face to Face</option>
+            <option value="online" {{ $methodSelected === 'online' ? 'selected' : '' }}>Online</option>
+            <option value="both" {{ $methodSelected === 'both' ? 'selected' : '' }}>Both (Face to Face & Online)</option>
+        </x-inputs.select>
+    </x-inputs.group>
+
+    <x-inputs.group class="col-sm-12 col-lg-3">
         <x-inputs.select name="has_discount" label="Has Discount">
             @php $selected = old('has_discount', ($editing ? $course->has_discount : '')) @endphp
             <option value="0" {{ $selected == '0' ? 'selected' : '' }}>No</option>
@@ -36,7 +37,7 @@
         </x-inputs.select>
     </x-inputs.group>
 
-    <x-inputs.group class="col-sm-12 col-lg-4 discount_amount none">
+    <x-inputs.group class="col-sm-12 col-lg-3 discount_amount none">
         <x-inputs.number name="discount" label="Discount Amount" :value="old('discount', $editing ? $course->discount : '')" placeholder="Discount"
             required></x-inputs.number>
     </x-inputs.group>

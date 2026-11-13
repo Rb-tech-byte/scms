@@ -2,36 +2,47 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\NotificationTemplate;
+use App\Services\PermissionService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
- * Class NotificationTemplateController
- *
- * Manages dynamic SMS and email notification templates with variable placeholders.
- *
- * TEMPLATING ARCHITECTURE FOR FUTURE DEVELOPERS:
- * 1. Placeholders Supported in Templates:
- *    - `{student_name}`: Full name of the applicant or student.
- *    - `{course_title}`: Name of the short course.
- *    - `{invoice_number}`: The invoice prefix (e.g. OUT104ABC9X2).
- *    - `{amount_paid}`: Transaction amount formatted with currency.
- *    - `{balance}`: Outstanding balance.
- *    - `{due_date}`: Installment due date.
- *    - `{venue_name}`: Physical training centre or classroom venue.
- *
- * 2. Supported Channels:
- *    - SMS: NextSMS / Beem / Twilio dispatch via `validatePhoneNumber()` in `app/Helpers/Helpers.php`.
- *    - Email: Standard Laravel Mailable notifications via `App\Mail\SendMail`.
+ * Manages configurable email/SMS templates for overdue reminders and alerts.
  */
 class NotificationTemplateController extends Controller
 {
-    /**
-     * Display configured notification message templates.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function index()
+    public function index(): View
     {
-        return view('notifications.templates.index');
+        if (!PermissionService::can('view-notifications') && !PermissionService::can('manage-notification-templates')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $templates = NotificationTemplate::orderBy('name')->get();
+        return view('notifications.templates.index', compact('templates'));
+    }
+
+    public function update(Request $request, NotificationTemplate $template): RedirectResponse
+    {
+        if (!PermissionService::can('view-notifications') && !PermissionService::can('manage-notification-templates')) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'channel' => ['required', 'in:email,sms,both'],
+            'subject' => ['nullable', 'string', 'max:255'],
+            'body' => ['required', 'string', 'max:2000'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $template->update([
+            'channel' => $validated['channel'],
+            'subject' => $validated['subject'] ?? $template->subject,
+            'body' => $validated['body'],
+            'is_active' => $request->boolean('is_active'),
+        ]);
+
+        return back()->with('success', "Template '{$template->name}' updated.");
     }
 }

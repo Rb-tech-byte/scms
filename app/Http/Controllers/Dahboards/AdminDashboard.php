@@ -22,22 +22,17 @@ class AdminDashboard extends Controller
         $this->middleware(["auth","branch.access"]);
     }
 
-    public function index(): View
+    public function index(): View|RedirectResponse
     {
-        if(Auth::user()->hasRole('system-admin')){
+        if (Auth::user()->hasRole(['system-admin', 'marketing-officer'])) {
             $this->data['students'] = Applicant::all();
-        $this->data['courses'] = Course::all();
-        $this->data['invoices'] = Invoice::all();
-        //collect all payment amounts
-        $this->data['payments'] = $payments = Payment::all()->pluck('amount')->toArray();
-        //sum up the payments
-        $this->data['total_payments'] = array_sum($payments);
-
-        //collect all invoices balances
-        $this->data['balances']=$balances = Invoice::all()->pluck('balance')->toArray();
-        //sum up the balances
-        $this->data['total_balances'] = array_sum($balances);
-        } else if (Auth::user()->hasRole('branch-admin')) {
+            $this->data['courses'] = Course::all();
+            $this->data['invoices'] = Invoice::all();
+            $this->data['payments'] = $payments = Payment::all()->pluck('amount')->toArray();
+            $this->data['total_payments'] = array_sum($payments);
+            $this->data['balances'] = $balances = Invoice::all()->pluck('balance')->toArray();
+            $this->data['total_balances'] = array_sum($balances);
+        } elseif (Auth::user()->hasRole(['branch-admin', 'training-coordinator'])) {
             $user = Auth::user();
             $branchId = session('user_branch_id') ?: $user->branch_id;
             $branch = $branchId ? Branch::find($branchId) : null;

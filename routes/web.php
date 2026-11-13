@@ -28,6 +28,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Controllers\ForceResetPasswordController;
 use App\Http\Controllers\GlobalSearchController;
+use App\Http\Controllers\HelpController;
+use App\Http\Controllers\StudentPortalController;
 use App\Models\Setting as SystemSettings;
 use Codedge\Fpdf\Fpdf\Fpdf;
 
@@ -148,7 +150,7 @@ Route::get('/ViewInvoice/{id}', function ($id) {
     $pdf->Ln();
     $pdf->Cell(50, 7, '+255 799 888 234 | +255 799 888 233', 0, 0, 'L');
     $pdf->Cell(80, 7);
-    $pdf->Cell(50, 7);
+    $pdf->Cell(50, 7, $invoice->control_number ? 'Control No: ' . $invoice->control_number : '', 0, 0, 'R');
 
 
     // Table Headers
@@ -222,6 +224,8 @@ Route::get('/ViewInvoice/{id}', function ($id) {
     //$pdf->Output();
 });
 
+Route::get('certificates/verify', [CertificateController::class, 'verify'])->name('certificates.verify');
+
 Route::get('force-password-reset', [ForceResetPasswordController::class, 'showForm'])->name('password.force_reset');
 Route::post('force-password-reset', [ForceResetPasswordController::class, 'update'])->name('password.force_reset.update');
 Auth::routes();
@@ -269,7 +273,17 @@ Route::prefix('/')
         Route::post('permission/assign-role/', [PermissionController::class,'assignPermissionRole'])->name('permission.assign_role_permissions');
         Route::post('encrypt/role/', [PermissionController::class,'encryptRole'])->name('encrypt.role');
         Route::put('user/updatePermissions/{user_id}', [UserController::class, 'updatePermissions'])->name('user.updatePermissions');
+        Route::post('users/{user}/toggle-block', [UserController::class, 'toggleBlock'])->name('users.toggle-block');
         Route::resource('users', UserController::class);
+
+        // Student Self-Service Portal (SRS R1)
+        Route::get('student/portal', [StudentPortalController::class, 'index'])->name('student.portal');
+        Route::post('student/enroll', [StudentPortalController::class, 'enroll'])->name('student.enroll');
+        Route::delete('student/enrollments/{enrollment}', [StudentPortalController::class, 'unenroll'])->name('student.unenroll');
+        Route::post('invoices/{invoice}/control-number', [StudentPortalController::class, 'generateControlNumber'])->name('invoices.control-number');
+        Route::get('student/invoices/{invoice}/pay', [StudentPortalController::class, 'showPaymentForm'])->name('student.invoices.pay');
+        Route::post('student/invoices/{invoice}/pay', [StudentPortalController::class, 'submitPayment'])->name('student.invoices.submit-payment');
+        Route::get('payments/{payment}/receipt', [StudentPortalController::class, 'viewReceipt'])->name('payments.receipt');
 
         // Academic Structure & Facilities
         Route::resource('branches', BranchController::class);
@@ -300,6 +314,8 @@ Route::prefix('/')
         Route::post('course_amount', [PaymentController::class, 'getCourseAmount'])->name('payment.course_amount');
 
         // Communications & Notifications
+        Route::get('notifications/templates', [NotificationTemplateController::class, 'index'])->name('notifications.templates');
+        Route::put('notifications/templates/{template}', [NotificationTemplateController::class, 'update'])->name('notifications.templates.update');
         Route::resource('notifications', NotificationController::class);
         Route::get('message/{id}', [NotificationController::class, 'show_message'])->name('message.show');
         Route::get('messages', [NotificationController::class, 'show_all_messages'])->name('message.show_all');
@@ -317,6 +333,7 @@ Route::prefix('/')
         Route::get('/export-applicant-report-to-excel', [ReportController::class,'exportApplicantReportToExcel']);
         Route::get('/export-applicant-report-to-csv', [ReportController::class,'exportApplicantReportToCSV']);
         Route::get('/view-applicant-report/{query?}', [ReportController::class,'ApplicantReport'])->name('applicant.report');
+        Route::get('/reports/center-courses', [ReportController::class, 'centerCourseReport'])->name('reports.center_courses');
         Route::post('/global-search', [GlobalSearchController::class, 'search'])->name('global.search');
 
         // Payment Schedules & Automated Reminders
@@ -331,14 +348,17 @@ Route::prefix('/')
         Route::get('payment-reminders', [PaymentScheduleController::class, 'reminders'])->name('payment-schedules.reminders');
         Route::post('payment-reminders/send', [PaymentScheduleController::class, 'sendReminders'])->name('payment-schedules.send-reminders');
 
-        // Modular Extension Stubs (Certificates, Attendance, Analytics, Templates)
+        // Certificates, Attendance, Analytics, Templates & Online Help (SRS Modules)
         Route::get('certificates', [CertificateController::class, 'index'])->name('certificates.index');
-        Route::get('certificates/verify', [CertificateController::class, 'verify'])->name('certificates.verify');
+        Route::post('certificates/notify-tutors', [CertificateController::class, 'notifyTutors'])->name('certificates.notify_tutors');
+        Route::get('certificates/{certificate}/pdf', [CertificateController::class, 'downloadPdf'])->name('certificates.pdf');
         Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
+        Route::post('attendance', [AttendanceController::class, 'store'])->name('attendance.store');
         Route::get('attendance/export', [AttendanceController::class, 'export'])->name('attendance.export');
+        Route::get('active-classes', [AnalyticsController::class, 'activeClasses'])->name('active.classes');
         Route::get('analytics/branches', [AnalyticsController::class, 'branches'])->name('analytics.branches');
         Route::get('analytics/discounts', [AnalyticsController::class, 'discounts'])->name('analytics.discounts');
         Route::get('analytics/tutor-workload', [AnalyticsController::class, 'tutorWorkload'])->name('analytics.tutor_workload');
-        Route::get('notifications/templates', [NotificationTemplateController::class, 'index'])->name('notifications.templates');
+        Route::get('help', [HelpController::class, 'index'])->name('help.index');
 
     });

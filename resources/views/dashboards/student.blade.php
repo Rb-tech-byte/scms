@@ -23,6 +23,26 @@
 @endsection
 
 @section('content')
+    @if(!empty($overdue_schedules) && $overdue_schedules->count() > 0)
+        <div class="alert alert-danger d-flex justify-content-between align-items-center">
+            <div>
+                <strong>Overdue Payment Alert:</strong> You have {{ $overdue_schedules->count() }} overdue payment installment(s).
+            </div>
+            <a href="{{ route('student.portal') }}" class="btn btn-sm btn-light">Pay / Upload Receipt</a>
+        </div>
+    @endif
+
+    <div class="row mb-3">
+        <div class="col-12 d-flex flex-wrap gap-2">
+            <a href="{{ route('student.portal') }}" class="btn btn-primary">
+                <i class="fas fa-graduation-cap me-1"></i> Course Registration, Invoices & Receipts
+            </a>
+            <a href="{{ route('help.index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-question-circle me-1"></i> Online Help
+            </a>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-xl-4 mb-4">
             <a class="card lift h-100" href="{{ route('tutor.upcoming_session') }}">

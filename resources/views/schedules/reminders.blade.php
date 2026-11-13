@@ -66,9 +66,14 @@
                 <i class="fas fa-list"></i> Schedules Due for Reminder ({{ $schedules->count() }})
             </h6>
             @if($schedules->count() > 0)
-                <button type="button" class="btn btn-sm btn-success" onclick="sendAllReminders()">
-                    <i class="fas fa-paper-plane"></i> Send All Reminders
-                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary d-print-none" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print Overdue Alerts
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success d-print-none" onclick="sendAllReminders()">
+                        <i class="fas fa-paper-plane"></i> Send All Reminders
+                    </button>
+                </div>
             @endif
         </div>
         <div class="card-body">

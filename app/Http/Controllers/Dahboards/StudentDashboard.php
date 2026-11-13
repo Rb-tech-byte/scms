@@ -14,6 +14,9 @@ use App\Models\Course;
 use App\Models\Invoice;
 use App\Models\Payment;
 
+use App\Models\PaymentSchedule;
+use Carbon\Carbon;
+
 class StudentDashboard extends Controller
 {
     protected $data = [];
@@ -30,24 +33,31 @@ class StudentDashboard extends Controller
             $this->data['sessions'] = collect();
             $this->data['teached_sessions'] = collect();
             $this->data['new_sessions'] = collect();
+            $this->data['enrollments'] = collect();
+            $this->data['overdue_schedules'] = collect();
             $this->data['messsages'] = Message::where('receiver_id', $user->id)->where('opened', 0)->get();
             return view('dashboards.student', $this->data);
         }
 
-        $enrollments = Enrollment::where('applicant_id', $applicant->id)->get();
+        $enrollments = Enrollment::with(['course', 'venue.branch', 'invoices.payments'])
+            ->where('applicant_id', $applicant->id)
+            ->latest()
+            ->get();
 
-        $course_ids = [];
-        $venues = [];
-        foreach($enrollments as $enrollment) {
-            $course_ids[] = $enrollment->course_id;
-            $venues[] = $enrollment->venue_id;
-        }
+        $course_ids = $enrollments->pluck('course_id')->all();
+        $venues = $enrollments->pluck('venue_id')->all();
+
+        $this->data['enrollments'] = $enrollments;
         $this->data['sessions'] = CourseAssignment::whereIn('course_id', $course_ids)->whereIn('venue_id', $venues)->where('branch_id', $applicant->branch_id)->where('is_teached', 0)->get();
         $this->data['teached_sessions'] = CourseAssignment::whereIn('course_id', $course_ids)->whereIn('venue_id', $venues)->where('branch_id', $applicant->branch_id)->where('is_teached', 1)->get();
-        $this->data['new_sessions'] = CourseAssignment::whereIn('course_id', $course_ids)->whereIn('venue_id', $venues)->where('branch_id', $applicant->branch_id)->where('is_teached', 0)->get();
+        $this->data['new_sessions'] = $this->data['sessions'];
+        $this->data['overdue_schedules'] = PaymentSchedule::with(['invoice.enrollment.course'])
+            ->whereHas('invoice', fn ($q) => $q->where('applicant_id', $applicant->id))
+            ->whereIn('status', ['pending', 'overdue'])
+            ->whereDate('due_date', '<', Carbon::today())
+            ->get();
 
         $this->data['messsages'] = Message::where('receiver_id', $user->id)->where('opened', 0)->get();
-
 
         return view('dashboards.student', $this->data);
     }

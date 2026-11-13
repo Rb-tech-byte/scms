@@ -38,7 +38,7 @@
                 </a>
 
                 <div class="mt-3"></div>
-                @if(auth()->user()->hasRole('system-admin')||auth()->user()->hasRole('tutor')||auth()->user()->hasRole('branch-admin'))
+                @if(auth()->user()->hasRole(['system-admin', 'tutor', 'branch-admin', 'training-coordinator', 'marketing-officer', 'director']))
                     @check('view-dashboard')
                     <a class="nav-link {{ request()->route()->getName() == 'home'? 'active': '' }}"
                         href="{{ route('home') }}">
@@ -46,6 +46,14 @@
                         Dashboard
                     </a>
                     @endcheck
+
+                    @if(auth()->user()->hasRole(['director', 'system-admin', 'branch-admin', 'training-coordinator']))
+                    <a class="nav-link {{ request()->routeIs('active.classes') ? 'active' : '' }}"
+                        href="{{ route('active.classes') }}">
+                        <div class="nav-link-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+                        Active Classes
+                    </a>
+                    @endif
 
                     @check('access-administration')
                     <div class="sidenav-menu-heading">ADMINISTRATION</div>
@@ -235,6 +243,7 @@
                     <div class="sidenav-menu-heading">REPORTS</div>
                 {!! generateSidenavAccordion('reports', 'file', 'Reports', [
                         ['name' => 'applicant.report', 'title' => 'View Applicant Report','permission'=>'view-all-reports'],
+                        ['name' => 'reports.center_courses', 'title' => 'Center Course Report','permission'=>'view-all-reports'],
                     ]) !!}
                     @endcheck
 
@@ -242,6 +251,12 @@
                 @endif
 
                 @if(auth()->user()->hasRole('student'))
+                <div class="sidenav-menu-heading">STUDENT PORTAL</div>
+                <a class="nav-link {{ request()->routeIs('student.portal') ? 'active' : '' }}" href="{{ route('student.portal') }}">
+                    <div class="nav-link-icon"><i class="fas fa-graduation-cap"></i></div>
+                    Enroll, Invoices & Receipts
+                </a>
+
                 <div class="sidenav-menu-heading">PAYMENTS</div>
                 {!! generateSidenavAccordion('invoices', 'file-text', 'Invoices', [
                     ['name' => 'invoices.index', 'title' => 'View'],
@@ -253,6 +268,12 @@
                     ['name' => 'course-assignment.branch', 'title' => 'View'],
                 ]) !!}
                 @endif
+
+                <div class="sidenav-menu-heading">SUPPORT</div>
+                <a class="nav-link {{ request()->routeIs('help.index') ? 'active' : '' }}" href="{{ route('help.index') }}">
+                    <div class="nav-link-icon"><i class="fas fa-question-circle"></i></div>
+                    Online Help
+                </a>
                 <div class="my-4"></div>
             </div>
         </div>

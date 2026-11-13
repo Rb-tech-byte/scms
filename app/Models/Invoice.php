@@ -51,15 +51,20 @@ class Invoice extends Model
         'applicant_id',
         'enrollment_id',
         'balance',
+        'total_amount',
         'paid_amount',
         'description',
         'invoice_prefix',
+        'control_number',
+        'control_number_generated_at',
         'has_discount',
         'discount_amount',
         'discount_reason',
         'discount_file',
         'date',
+        'due_date',
         'status',
+        'payment_method',
     ];
 
     /**
@@ -76,6 +81,8 @@ class Invoice extends Model
      */
     protected $casts = [
         'date' => 'date',
+        'due_date' => 'date',
+        'control_number_generated_at' => 'datetime',
     ];
 
     /**

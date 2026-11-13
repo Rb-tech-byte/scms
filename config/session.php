@@ -198,4 +198,6 @@ return [
 
     'same_site' => 'lax',
 
+    'idle_timeout_minutes' => (int) env('SESSION_IDLE_MINUTES', 5),
+
 ];

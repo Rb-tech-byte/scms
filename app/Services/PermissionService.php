@@ -43,13 +43,13 @@ class PermissionService
             return false;
         }
 
-        // System admin can access all branches
-        if ($user->hasRole('system-admin')) {
+        // System admin, Director, and Marketing Officer can access all branches
+        if ($user->hasRole(['system-admin', 'director', 'marketing-officer'])) {
             return true;
         }
 
-        // Branch admin and tutors can only access their branch
-        if ($user->hasRole(['branch-admin', 'tutor'])) {
+        // Branch admin, training coordinator, and tutors can only access their branch
+        if ($user->hasRole(['branch-admin', 'training-coordinator', 'tutor'])) {
             $userBranchId = session('user_branch_id');
             
             if ($branchId === null) {
@@ -78,8 +78,13 @@ class PermissionService
             return true;
         }
 
-        // Branch admin can create in their branch
-        if ($user->hasRole('branch-admin')) {
+        // Executive roles (director, marketing-officer) with explicit permission
+        if ($user->hasRole(['director', 'marketing-officer'])) {
+            return $user->hasPermission($permission);
+        }
+
+        // Branch admin and training coordinator can create in their branch
+        if ($user->hasRole(['branch-admin', 'training-coordinator'])) {
             return $user->hasPermission($permission) && session('user_branch_id') !== null;
         }
 
@@ -102,8 +107,12 @@ class PermissionService
             return true;
         }
 
-        // Branch admin can update in their branch
-        if ($user->hasRole('branch-admin')) {
+        if ($user->hasRole(['director', 'marketing-officer'])) {
+            return $user->hasPermission($permission);
+        }
+
+        // Branch admin and training coordinator can update in their branch
+        if ($user->hasRole(['branch-admin', 'training-coordinator'])) {
             if (!$user->hasPermission($permission)) {
                 return false;
             }
@@ -140,13 +149,17 @@ class PermissionService
             return false;
         }
 
-        // System admin can view anything
+        // System admin, Director, and Marketing Officer can view across branches if permitted
         if ($user->hasRole('system-admin')) {
             return true;
         }
 
-        // Branch admin and tutors can view their branch data
-        if ($user->hasRole(['branch-admin', 'tutor'])) {
+        if ($user->hasRole(['director', 'marketing-officer'])) {
+            return $user->hasPermission($permission);
+        }
+
+        // Branch admin, training coordinator, and tutors can view their branch data
+        if ($user->hasRole(['branch-admin', 'training-coordinator', 'tutor'])) {
             if (!$user->hasPermission($permission)) {
                 return false;
             }

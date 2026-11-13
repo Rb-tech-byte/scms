@@ -16,8 +16,11 @@ class ForcePasswordReset
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
-        if($user && $user->force_password_reset){
-            if(!$request->is('force-password-reset*') && !$request->is('logout')){
+        if ($user && ($user->force_password_reset || $user->isPasswordExpired())) {
+            if (!$user->force_password_reset) {
+                $user->forceFill(['force_password_reset' => true])->save();
+            }
+            if (!$request->is('force-password-reset*') && !$request->is('logout')) {
                 return redirect()->route('password.force_reset');
             }
         }
